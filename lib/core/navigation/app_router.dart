@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/auth/presentation/sign_in_screen.dart';
+import '../../features/auth/presentation/splash_screen.dart';
 import '../../features/expenses/presentation/expense_declaration_screen.dart';
 import '../../features/expenses/presentation/split_details_screen.dart';
 import '../../features/profile/presentation/profile_screen.dart';
@@ -19,15 +20,22 @@ final _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     navigatorKey: _rootNavigatorKey,
-    initialLocation: AppRoutes.signIn,
+    initialLocation: AppRoutes.splash,
     routes: <RouteBase>[
+      GoRoute(
+        path: AppRoutes.splash,
+        builder: (context, state) => const SplashScreen(),
+      ),
       GoRoute(
         path: AppRoutes.signIn,
         builder: (context, state) => const SignInScreen(),
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
-          return TripsplitShellScaffold(navigationShell: navigationShell);
+          return TripsplitShellScaffold(
+            navigationShell: navigationShell,
+            currentLocation: state.uri.path,
+          );
         },
         branches: <StatefulShellBranch>[
           StatefulShellBranch(

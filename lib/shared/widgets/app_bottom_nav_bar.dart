@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../../core/constants/app_constants.dart';
-import '../../core/theme/app_colors.dart';
-import '../../core/theme/app_radii.dart';
-import '../../core/theme/app_spacing.dart';
 
 class AppBottomNavBar extends StatelessWidget {
   const AppBottomNavBar({
@@ -16,48 +14,31 @@ class AppBottomNavBar extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;
 
+  static double height(BuildContext context) {
+    return 84.h + MediaQuery.paddingOf(context).bottom;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      top: false,
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(
-          AppSpacing.lg.w,
-          0,
-          AppSpacing.lg.w,
-          AppSpacing.lg.h,
-        ),
-        child: Container(
-          padding: EdgeInsets.all(AppSpacing.sm.w),
-          decoration: BoxDecoration(
-            color: AppColors.creamStrong,
-            borderRadius: BorderRadius.circular(AppRadii.xl.r),
-            border: Border.all(color: AppColors.outline),
-            boxShadow: <BoxShadow>[
-              BoxShadow(
-                color: AppColors.shadow,
-                blurRadius: 24.r,
-                offset: Offset(0, 12.h),
+    final bottomInset = MediaQuery.paddingOf(context).bottom;
+
+    return Container(
+      padding: EdgeInsets.fromLTRB(16.w, 15.h, 16.w, bottomInset + 16.h),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        border: Border(top: BorderSide(color: Color(0xFF564338))),
+      ),
+      child: Row(
+        children: <Widget>[
+          for (var index = 0; index < primaryNavigationItems.length; index++)
+            Expanded(
+              child: _NavBarItem(
+                item: primaryNavigationItems[index],
+                selected: index == currentIndex,
+                onTap: () => onTap(index),
               ),
-            ],
-          ),
-          child: Row(
-            children: <Widget>[
-              for (
-                var index = 0;
-                index < primaryNavigationItems.length;
-                index++
-              )
-                Expanded(
-                  child: _NavBarItem(
-                    item: primaryNavigationItems[index],
-                    selected: index == currentIndex,
-                    onTap: () => onTap(index),
-                  ),
-                ),
-            ],
-          ),
-        ),
+            ),
+        ],
       ),
     );
   }
@@ -76,40 +57,40 @@ class _NavBarItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final foreground = selected ? AppColors.white : AppColors.mutedInk;
+    const activeColor = Color(0xFF682D00);
+    const inactiveColor = Color(0xFF404758);
 
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: AppSpacing.xs.w),
+    return Center(
       child: InkWell(
-        borderRadius: BorderRadius.circular(AppRadii.lg.r),
+        borderRadius: BorderRadius.circular(8.r),
         onTap: onTap,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 180),
-          padding: EdgeInsets.symmetric(
-            horizontal: AppSpacing.md.w,
-            vertical: AppSpacing.md.h,
-          ),
+          padding: EdgeInsets.symmetric(horizontal: 32.w, vertical: 4.h),
           decoration: BoxDecoration(
-            color: selected ? AppColors.primary : AppColors.transparent,
-            borderRadius: BorderRadius.circular(AppRadii.lg.r),
+            color: selected ? const Color(0xFFFF8A3D) : Colors.transparent,
+            borderRadius: BorderRadius.circular(8.r),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               Icon(
                 selected ? item.activeIcon : item.icon,
-                color: foreground,
-                size: 20.sp,
+                size: 18.sp,
+                color: selected ? activeColor : inactiveColor,
               ),
-              SizedBox(height: AppSpacing.sm.h),
+              SizedBox(height: 4.h),
               FittedBox(
                 fit: BoxFit.scaleDown,
                 child: Text(
                   item.label,
-                  maxLines: 1,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.labelMedium?.copyWith(color: foreground),
+                  style: GoogleFonts.jetBrainsMono(
+                    color: selected ? activeColor : inactiveColor,
+                    fontSize: 11.sp,
+                    fontWeight: FontWeight.w700,
+                    height: 1.45,
+                    letterSpacing: 1.1.sp,
+                  ),
                 ),
               ),
             ],
