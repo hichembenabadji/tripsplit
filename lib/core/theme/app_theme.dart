@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'app_colors.dart';
 import 'app_radii.dart';
+import 'app_spacing.dart';
 import 'app_typography.dart';
 
 abstract final class AppTheme {
@@ -35,28 +37,28 @@ abstract final class AppTheme {
         elevation: 0,
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppRadii.lg),
+          borderRadius: BorderRadius.circular(AppRadii.lg.r),
           side: const BorderSide(color: AppColors.outline),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: AppColors.creamStrong,
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 14,
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: AppSpacing.lg.w,
+          vertical: 14.h,
         ),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppRadii.md),
+          borderRadius: BorderRadius.circular(AppRadii.md.r),
           borderSide: const BorderSide(color: AppColors.outline),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppRadii.md),
+          borderRadius: BorderRadius.circular(AppRadii.md.r),
           borderSide: const BorderSide(color: AppColors.outline),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppRadii.md),
-          borderSide: const BorderSide(color: AppColors.primary, width: 1.2),
+          borderRadius: BorderRadius.circular(AppRadii.md.r),
+          borderSide: BorderSide(color: AppColors.primary, width: 1.2.r),
         ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
@@ -64,10 +66,13 @@ abstract final class AppTheme {
           backgroundColor: AppColors.primary,
           foregroundColor: AppColors.white,
           elevation: 0,
-          minimumSize: const Size.fromHeight(54),
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+          minimumSize: Size.fromHeight(54.h),
+          padding: EdgeInsets.symmetric(
+            horizontal: 18.w,
+            vertical: AppSpacing.lg.h,
+          ),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppRadii.md),
+            borderRadius: BorderRadius.circular(AppRadii.md.r),
           ),
           textStyle: AppTypography.textTheme.labelLarge,
         ),
@@ -76,9 +81,9 @@ abstract final class AppTheme {
         style: OutlinedButton.styleFrom(
           foregroundColor: AppColors.ink,
           side: const BorderSide(color: AppColors.outline),
-          minimumSize: const Size.fromHeight(50),
+          minimumSize: Size.fromHeight(50.h),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppRadii.md),
+            borderRadius: BorderRadius.circular(AppRadii.md.r),
           ),
           textStyle: AppTypography.textTheme.labelLarge,
         ),
@@ -88,7 +93,7 @@ abstract final class AppTheme {
         labelStyle: AppTypography.textTheme.labelMedium,
         side: const BorderSide(color: AppColors.outline),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppRadii.pill),
+          borderRadius: BorderRadius.circular(AppRadii.pill.r),
         ),
       ),
     );

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import '../../core/responsive/app_responsive.dart';
 import '../../core/theme/app_spacing.dart';
 
 class AppScreen extends StatelessWidget {
@@ -10,7 +12,7 @@ class AppScreen extends StatelessWidget {
     this.subtitle,
     this.actions = const <Widget>[],
     this.bottomAction,
-    this.padding = const EdgeInsets.all(AppSpacing.xxl),
+    this.padding,
   });
 
   final String title;
@@ -18,7 +20,7 @@ class AppScreen extends StatelessWidget {
   final Widget child;
   final List<Widget> actions;
   final Widget? bottomAction;
-  final EdgeInsetsGeometry padding;
+  final EdgeInsetsGeometry? padding;
 
   @override
   Widget build(BuildContext context) {
@@ -27,12 +29,7 @@ class AppScreen extends StatelessWidget {
       child: Column(
         children: <Widget>[
           Padding(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.xxl,
-              AppSpacing.xxl,
-              AppSpacing.xxl,
-              AppSpacing.lg,
-            ),
+            padding: AppResponsive.pageHeaderPadding,
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
@@ -42,12 +39,16 @@ class AppScreen extends StatelessWidget {
                     children: <Widget>[
                       Text(
                         title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                         style: Theme.of(context).textTheme.headlineMedium,
                       ),
                       if (subtitle != null) ...<Widget>[
-                        const SizedBox(height: AppSpacing.sm),
+                        SizedBox(height: AppSpacing.sm.h),
                         Text(
                           subtitle!,
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
                       ],
@@ -60,16 +61,14 @@ class AppScreen extends StatelessWidget {
             ),
           ),
           Expanded(
-            child: SingleChildScrollView(padding: padding, child: child),
+            child: SingleChildScrollView(
+              padding: padding ?? AppResponsive.pagePadding,
+              child: child,
+            ),
           ),
           if (bottomAction != null)
             Padding(
-              padding: const EdgeInsets.fromLTRB(
-                AppSpacing.xxl,
-                AppSpacing.lg,
-                AppSpacing.xxl,
-                AppSpacing.lg,
-              ),
+              padding: AppResponsive.pageBottomActionPadding,
               child: bottomAction!,
             ),
         ],

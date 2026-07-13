@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../data/models/user.dart';
@@ -22,17 +23,18 @@ class AvatarStack extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
+    final resolvedSize = avatarSize.r;
     final visibleUsers = users.take(maxVisible).toList();
     final overflowCount = users.length - visibleUsers.length;
     final itemCount = overflowCount > 0
         ? visibleUsers.length + 1
         : visibleUsers.length;
-    final overlap = avatarSize * 0.62;
-    final width = avatarSize + (itemCount - 1) * overlap;
+    final overlap = resolvedSize * 0.62;
+    final width = resolvedSize + (itemCount - 1) * overlap;
 
     return SizedBox(
       width: width,
-      height: avatarSize,
+      height: resolvedSize,
       child: Stack(
         children: <Widget>[
           for (var index = 0; index < visibleUsers.length; index++)
@@ -44,19 +46,23 @@ class AvatarStack extends StatelessWidget {
             Positioned(
               left: visibleUsers.length * overlap,
               child: Container(
-                width: avatarSize,
-                height: avatarSize,
+                width: resolvedSize,
+                height: resolvedSize,
                 decoration: BoxDecoration(
                   color: AppColors.ink,
                   shape: BoxShape.circle,
-                  border: Border.all(color: AppColors.creamStrong, width: 2),
+                  border: Border.all(color: AppColors.creamStrong, width: 2.r),
                 ),
                 alignment: Alignment.center,
-                child: Text(
-                  '+$overflowCount',
-                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                    color: AppColors.white,
-                    fontSize: avatarSize / 3.3,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    '+$overflowCount',
+                    maxLines: 1,
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                      color: AppColors.white,
+                      fontSize: (avatarSize / 3.3).sp,
+                    ),
                   ),
                 ),
               ),

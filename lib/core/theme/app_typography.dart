@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'app_colors.dart';
@@ -9,53 +10,53 @@ abstract final class AppTypography {
 
     return base.copyWith(
       headlineLarge: base.headlineLarge?.copyWith(
-        fontSize: 32,
+        fontSize: 32.sp,
         fontWeight: FontWeight.w800,
         color: AppColors.ink,
       ),
       headlineMedium: base.headlineMedium?.copyWith(
-        fontSize: 24,
+        fontSize: 24.sp,
         fontWeight: FontWeight.w800,
         color: AppColors.ink,
       ),
       titleLarge: base.titleLarge?.copyWith(
-        fontSize: 20,
+        fontSize: 20.sp,
         fontWeight: FontWeight.w800,
         color: AppColors.ink,
       ),
       titleMedium: base.titleMedium?.copyWith(
-        fontSize: 16,
+        fontSize: 16.sp,
         fontWeight: FontWeight.w700,
         color: AppColors.ink,
       ),
       bodyLarge: base.bodyLarge?.copyWith(
-        fontSize: 15,
+        fontSize: 15.sp,
         fontWeight: FontWeight.w600,
         color: AppColors.ink,
         height: 1.45,
       ),
       bodyMedium: base.bodyMedium?.copyWith(
-        fontSize: 13,
+        fontSize: 13.sp,
         fontWeight: FontWeight.w500,
         color: AppColors.mutedInk,
         height: 1.45,
       ),
       bodySmall: base.bodySmall?.copyWith(
-        fontSize: 11,
+        fontSize: 11.sp,
         fontWeight: FontWeight.w600,
         color: AppColors.mutedInk,
         height: 1.4,
       ),
       labelLarge: base.labelLarge?.copyWith(
-        fontSize: 13,
+        fontSize: 13.sp,
         fontWeight: FontWeight.w800,
-        letterSpacing: 0.2,
+        letterSpacing: 0.2.sp,
         color: AppColors.ink,
       ),
       labelMedium: base.labelMedium?.copyWith(
-        fontSize: 11,
+        fontSize: 11.sp,
         fontWeight: FontWeight.w800,
-        letterSpacing: 0.4,
+        letterSpacing: 0.4.sp,
         color: AppColors.mutedInk,
       ),
     );

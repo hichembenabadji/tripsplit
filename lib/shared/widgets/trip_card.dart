@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_radii.dart';
@@ -29,14 +30,14 @@ class TripCard extends StatelessWidget {
 
     return Material(
       color: AppColors.card,
-      borderRadius: BorderRadius.circular(AppRadii.lg),
+      borderRadius: BorderRadius.circular(AppRadii.lg.r),
       child: InkWell(
-        borderRadius: BorderRadius.circular(AppRadii.lg),
+        borderRadius: BorderRadius.circular(AppRadii.lg.r),
         onTap: onTap,
         child: Ink(
-          padding: const EdgeInsets.all(AppSpacing.xl),
+          padding: EdgeInsets.all(AppSpacing.xl.w),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(AppRadii.lg),
+            borderRadius: BorderRadius.circular(AppRadii.lg.r),
             border: Border.all(color: AppColors.outline),
           ),
           child: Column(
@@ -51,45 +52,59 @@ class TripCard extends StatelessWidget {
                       children: <Widget>[
                         Text(
                           trip.title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: Theme.of(context).textTheme.titleLarge,
                         ),
-                        const SizedBox(height: AppSpacing.xs),
+                        SizedBox(height: AppSpacing.xs.h),
                         Text(
-                          '${trip.destination} · ${AppFormatters.dateRange(trip.startDate, trip.endDate)}',
+                          '${trip.destination} - ${AppFormatters.dateRange(trip.startDate, trip.endDate)}',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
                       ],
                     ),
                   ),
+                  SizedBox(width: AppSpacing.md.w),
                   StatusPill(
                     label: trip.isSettled ? 'Settled' : 'Active',
                     tone: tone,
                   ),
                 ],
               ),
-              const SizedBox(height: AppSpacing.xl),
+              SizedBox(height: AppSpacing.xl.h),
               Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: <Widget>[
                   AvatarStack(users: members),
-                  const Spacer(),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: <Widget>[
-                      Text(
-                        'Trip total',
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                      const SizedBox(height: AppSpacing.xs),
-                      Text(
-                        AppFormatters.currency(
-                          trip.totalAmount,
-                          currencyCode: trip.currencyCode,
+                  SizedBox(width: AppSpacing.md.w),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: <Widget>[
+                        Text(
+                          'Trip total',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.bodySmall,
                         ),
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: AppColors.primaryDark,
+                        SizedBox(height: AppSpacing.xs.h),
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.centerRight,
+                          child: Text(
+                            AppFormatters.currency(
+                              trip.totalAmount,
+                              currencyCode: trip.currencyCode,
+                            ),
+                            maxLines: 1,
+                            style: Theme.of(context).textTheme.titleLarge
+                                ?.copyWith(color: AppColors.primaryDark),
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ],
               ),

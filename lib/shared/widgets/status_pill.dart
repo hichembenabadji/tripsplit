@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_radii.dart';
@@ -17,19 +18,23 @@ class StatusPill extends StatelessWidget {
     final colors = _colorsForTone(tone);
 
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.md,
-        vertical: AppSpacing.sm,
+      padding: EdgeInsets.symmetric(
+        horizontal: AppSpacing.md.w,
+        vertical: AppSpacing.sm.h,
       ),
       decoration: BoxDecoration(
         color: colors.background,
-        borderRadius: BorderRadius.circular(AppRadii.pill),
+        borderRadius: BorderRadius.circular(AppRadii.pill.r),
       ),
-      child: Text(
-        label.toUpperCase(),
-        style: Theme.of(
-          context,
-        ).textTheme.labelMedium?.copyWith(color: colors.foreground),
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Text(
+          label.toUpperCase(),
+          maxLines: 1,
+          style: Theme.of(
+            context,
+          ).textTheme.labelMedium?.copyWith(color: colors.foreground),
+        ),
       ),
     );
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../core/constants/app_constants.dart';
 import '../../core/theme/app_colors.dart';
@@ -20,23 +21,23 @@ class AppBottomNavBar extends StatelessWidget {
     return SafeArea(
       top: false,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(
-          AppSpacing.lg,
+        padding: EdgeInsets.fromLTRB(
+          AppSpacing.lg.w,
           0,
-          AppSpacing.lg,
-          AppSpacing.lg,
+          AppSpacing.lg.w,
+          AppSpacing.lg.h,
         ),
         child: Container(
-          padding: const EdgeInsets.all(AppSpacing.sm),
+          padding: EdgeInsets.all(AppSpacing.sm.w),
           decoration: BoxDecoration(
             color: AppColors.creamStrong,
-            borderRadius: BorderRadius.circular(AppRadii.xl),
+            borderRadius: BorderRadius.circular(AppRadii.xl.r),
             border: Border.all(color: AppColors.outline),
-            boxShadow: const <BoxShadow>[
+            boxShadow: <BoxShadow>[
               BoxShadow(
                 color: AppColors.shadow,
-                blurRadius: 24,
-                offset: Offset(0, 12),
+                blurRadius: 24.r,
+                offset: Offset(0, 12.h),
               ),
             ],
           ),
@@ -78,19 +79,19 @@ class _NavBarItem extends StatelessWidget {
     final foreground = selected ? AppColors.white : AppColors.mutedInk;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
+      padding: EdgeInsets.symmetric(horizontal: AppSpacing.xs.w),
       child: InkWell(
-        borderRadius: BorderRadius.circular(AppRadii.lg),
+        borderRadius: BorderRadius.circular(AppRadii.lg.r),
         onTap: onTap,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 180),
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.md,
-            vertical: AppSpacing.md,
+          padding: EdgeInsets.symmetric(
+            horizontal: AppSpacing.md.w,
+            vertical: AppSpacing.md.h,
           ),
           decoration: BoxDecoration(
             color: selected ? AppColors.primary : AppColors.transparent,
-            borderRadius: BorderRadius.circular(AppRadii.lg),
+            borderRadius: BorderRadius.circular(AppRadii.lg.r),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -98,14 +99,18 @@ class _NavBarItem extends StatelessWidget {
               Icon(
                 selected ? item.activeIcon : item.icon,
                 color: foreground,
-                size: 20,
+                size: 20.sp,
               ),
-              const SizedBox(height: AppSpacing.sm),
-              Text(
-                item.label,
-                style: Theme.of(
-                  context,
-                ).textTheme.labelMedium?.copyWith(color: foreground),
+              SizedBox(height: AppSpacing.sm.h),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  item.label,
+                  maxLines: 1,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.labelMedium?.copyWith(color: foreground),
+                ),
               ),
             ],
           ),
