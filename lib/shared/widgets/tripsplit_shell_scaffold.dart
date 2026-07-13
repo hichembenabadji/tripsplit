@@ -19,7 +19,9 @@ class TripsplitShellScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     final navHeight = AppBottomNavBar.height(context);
     final bottomInset = MediaQuery.paddingOf(context).bottom;
-    final showTripsFab = currentLocation == AppRoutes.trips;
+    final detailTripId = _activeDetailTripId();
+    final showTripsFab =
+        currentLocation == AppRoutes.trips || detailTripId != null;
 
     return Scaffold(
       body: Stack(
@@ -44,13 +46,32 @@ class TripsplitShellScaffold extends StatelessWidget {
               right: 16.w,
               bottom: bottomInset + 50.h,
               child: _AddTripButton(
-                onTap: () =>
-                    context.push('${AppRoutes.trips}/${AppRoutes.createTrip}'),
+                onTap: () {
+                  if (detailTripId != null) {
+                    context.push(AppRoutes.addExpenseLocation(detailTripId));
+                    return;
+                  }
+
+                  context.push('${AppRoutes.trips}/${AppRoutes.createTrip}');
+                },
               ),
             ),
         ],
       ),
     );
+  }
+
+  String? _activeDetailTripId() {
+    final detailPattern = RegExp(
+      '^${RegExp.escape(AppRoutes.trips)}/([^/]+)\$',
+    );
+    final match = detailPattern.firstMatch(currentLocation);
+
+    if (match == null) {
+      return null;
+    }
+
+    return match.group(1);
   }
 }
 
