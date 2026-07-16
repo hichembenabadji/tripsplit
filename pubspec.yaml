@@ -39,6 +39,7 @@ dependencies:
   google_fonts: ^8.1.0
   intl: ^0.20.3
   flutter_screenutil: ^5.9.3
+  currency_picker: ^2.0.22
 
 dev_dependencies:
   flutter_test:
