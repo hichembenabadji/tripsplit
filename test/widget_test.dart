@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:tripsplit/app_theme_controller.dart';
 import 'package:tripsplit/main.dart';
+
+Widget _buildTestApp() {
+  return TripSplitApp(
+    themeController: AppThemeController(AppThemePreference.system),
+  );
+}
 
 void main() {
   testWidgets('app creates a trip, expense, and expense details view', (
@@ -14,7 +21,7 @@ void main() {
       tester.view.resetDevicePixelRatio();
     });
 
-    await tester.pumpWidget(const TripSplitApp());
+    await tester.pumpWidget(_buildTestApp());
 
     await tester.pumpAndSettle();
 
@@ -142,7 +149,7 @@ void main() {
       tester.view.resetDevicePixelRatio();
     });
 
-    await tester.pumpWidget(const TripSplitApp());
+    await tester.pumpWidget(_buildTestApp());
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('GET STARTED'));
@@ -194,7 +201,7 @@ void main() {
       tester.view.resetDevicePixelRatio();
     });
 
-    await tester.pumpWidget(const TripSplitApp());
+    await tester.pumpWidget(_buildTestApp());
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('GET STARTED'));
@@ -213,10 +220,137 @@ void main() {
     expect(find.text('PASSENGER PROFILE'), findsOneWidget);
     expect(find.text('Default currency'), findsOneWidget);
 
-    await tester.tap(find.byKey(const ValueKey<String>('profile_logout_button')));
+    await tester.tap(
+      find.byKey(const ValueKey<String>('profile_logout_button')),
+    );
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome'), findsOneWidget);
     expect(find.text('Sign In'), findsOneWidget);
   });
+
+  testWidgets(
+    'create account saves required data and edit profile can add optional details',
+    (WidgetTester tester) async {
+      tester.view.devicePixelRatio = 1.0;
+      tester.view.physicalSize = const Size(1080, 1920);
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      await tester.pumpWidget(_buildTestApp());
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('GET STARTED'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Create account'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Create Account'), findsOneWidget);
+
+      final Finder nextButton = find.byKey(
+        const ValueKey<String>('create_account_next_button'),
+      );
+      ElevatedButton nextButtonWidget = tester.widget<ElevatedButton>(
+        nextButton,
+      );
+      expect(nextButtonWidget.onPressed, isNull);
+
+      final Finder accountFields = find.byType(TextField);
+      await tester.enterText(accountFields.at(0), 'Avery');
+      await tester.enterText(accountFields.at(2), 'avery@trip');
+      await tester.enterText(accountFields.at(3), 'topsecret');
+      await tester.pumpAndSettle();
+
+      nextButtonWidget = tester.widget<ElevatedButton>(nextButton);
+      expect(nextButtonWidget.onPressed, isNull);
+
+      await tester.enterText(accountFields.at(2), 'avery@trip.com');
+      await tester.pumpAndSettle();
+
+      nextButtonWidget = tester.widget<ElevatedButton>(nextButton);
+      expect(nextButtonWidget.onPressed, isNotNull);
+
+      await tester.tap(nextButton);
+      await tester.pumpAndSettle();
+
+      expect(find.text('My Trips'), findsOneWidget);
+
+      await tester.tap(
+        find.byKey(const ValueKey<String>('bottom_nav_profile')),
+      );
+      await tester.pumpAndSettle();
+
+      expect(
+        find.byKey(const ValueKey<String>('profile_screen')),
+        findsOneWidget,
+      );
+      expect(find.text('Avery'), findsOneWidget);
+      expect(find.text('avery@trip.com'), findsOneWidget);
+
+      await tester.tap(
+        find.byKey(const ValueKey<String>('profile_edit_button')),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Edit Profile'), findsOneWidget);
+      expect(find.text('Choose photo'), findsOneWidget);
+
+      final Finder editFields = find.byType(TextField);
+      await tester.enterText(editFields.at(1), 'Stone');
+      await tester.pumpAndSettle();
+
+      await tester.tap(
+        find.byKey(const ValueKey<String>('edit_profile_save_button')),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Avery Stone'), findsOneWidget);
+      expect(find.text('Profile updated.'), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    'trip details settle up button opens the final statement screen',
+    (WidgetTester tester) async {
+      tester.view.devicePixelRatio = 1.0;
+      tester.view.physicalSize = const Size(1080, 1920);
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      await tester.pumpWidget(_buildTestApp());
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('GET STARTED'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Sign In'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('London Weekend'));
+      await tester.pumpAndSettle();
+
+      await tester.ensureVisible(
+        find.byKey(const ValueKey<String>('trip_details_settle_up_button')),
+      );
+      await tester.tap(
+        find.byKey(const ValueKey<String>('trip_details_settle_up_button')),
+      );
+      await tester.pumpAndSettle();
+
+      expect(
+        find.byKey(const ValueKey<String>('final_settle_up_screen')),
+        findsOneWidget,
+      );
+      expect(find.text('FINAL STATEMENT'), findsOneWidget);
+      expect(find.text('READY TO SETTLE'), findsOneWidget);
+      expect(find.text('London Weekend'), findsOneWidget);
+      expect(find.text('TOTAL OUTSTANDING'), findsOneWidget);
+      expect(find.text('SETTLE UP NOW'), findsOneWidget);
+    },
+  );
 }

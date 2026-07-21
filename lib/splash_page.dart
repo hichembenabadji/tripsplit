@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'app_colors.dart';
 import 'signin_page.dart';
 
 class SplashPage extends StatelessWidget {
@@ -8,14 +9,17 @@ class SplashPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final AppColors appColors = Theme.of(context).extension<AppColors>()!;
+    final SplashColorTokens colors = appColors.splash;
+    final SharedColorTokens shared = appColors.shared;
     final mediaQuery = MediaQuery.sizeOf(context);
     final compactHeight = mediaQuery.height < 760;
     final horizontalPadding = mediaQuery.width < 360 ? 16.0 : 20.0;
 
     return Scaffold(
-      backgroundColor: Color(0xFFFDFCF0),
+      backgroundColor: colors.background,
       body: CustomPaint(
-        painter: const _BackgroundTexturePainter(),
+        painter: _BackgroundTexturePainter(textureColor: colors.texture),
         child: SafeArea(
           child: Center(
             child: ConstrainedBox(
@@ -43,7 +47,7 @@ class SplashPage extends StatelessWidget {
                         Text(
                           'TRIPSPLIT',
                           style: GoogleFonts.plusJakartaSans(
-                            color: Color(0xFF131407),
+                            color: colors.title,
                             fontSize: 32,
                             fontWeight: FontWeight.w800,
                             height: 1.33,
@@ -55,7 +59,7 @@ class SplashPage extends StatelessWidget {
                           'Split trips. Share expenses. Settle fast.',
                           textAlign: TextAlign.center,
                           style: GoogleFonts.plusJakartaSans(
-                            color: Color(0xCC584235),
+                            color: colors.subtitle,
                             fontSize: 18,
                             fontWeight: FontWeight.w400,
                             height: 1.5,
@@ -75,14 +79,14 @@ class SplashPage extends StatelessWidget {
                         },
                         style:
                             ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xFFFF7A00),
-                              foregroundColor: Colors.white,
+                              backgroundColor: colors.buttonFill,
+                              foregroundColor: shared.white,
                               elevation: 0,
                               padding: const EdgeInsets.symmetric(vertical: 16),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              shadowColor: Colors.transparent,
+                              shadowColor: shared.transparent,
                               textStyle: GoogleFonts.plusJakartaSans(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w700,
@@ -91,23 +95,23 @@ class SplashPage extends StatelessWidget {
                               ),
                             ).copyWith(
                               overlayColor: WidgetStatePropertyAll<Color>(
-                                Colors.white.withValues(alpha: 0.08),
+                                shared.overlayWhite08,
                               ),
-                              shadowColor: const WidgetStatePropertyAll<Color>(
-                                Colors.transparent,
+                              shadowColor: WidgetStatePropertyAll<Color>(
+                                shared.transparent,
                               ),
                             ),
                         child: Ink(
                           decoration: BoxDecoration(
                             boxShadow: <BoxShadow>[
                               BoxShadow(
-                                color: Color(0xFFFF7A00).withValues(alpha: 0.2),
+                                color: colors.buttonFill.withValues(alpha: 0.2),
                                 blurRadius: 6,
                                 offset: const Offset(0, 4),
                                 spreadRadius: -4,
                               ),
                               BoxShadow(
-                                color: Color(0xFFFF7A00).withValues(alpha: 0.2),
+                                color: colors.buttonFill.withValues(alpha: 0.2),
                                 blurRadius: 15,
                                 offset: const Offset(0, 10),
                                 spreadRadius: -3,
@@ -134,12 +138,14 @@ class SplashPage extends StatelessWidget {
 }
 
 class _BackgroundTexturePainter extends CustomPainter {
-  const _BackgroundTexturePainter();
+  const _BackgroundTexturePainter({required this.textureColor});
+
+  final Color textureColor;
 
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = const Color(0xFFE5DBC1).withValues(alpha: 0.12)
+      ..color = textureColor.withValues(alpha: 0.12)
       ..strokeWidth = 1;
 
     const spacing = 18.0;

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 
+import 'app_colors.dart';
 import 'app_routes.dart';
 import 'trip_store.dart';
 import 'tripsplit_bottom_nav.dart';
@@ -39,27 +40,23 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
     const _TripMember(
       name: 'You',
       initials: 'Y',
-      avatarColor: _CreateTripPalette.orange,
-      avatarTextColor: Colors.white,
+      avatarTone: _TripMemberTone.currentUser,
       isCurrentUser: true,
     ),
     const _TripMember(
       name: 'Alex Rivera',
       initials: 'AR',
-      avatarColor: _CreateTripPalette.avatarBlue,
-      avatarTextColor: _CreateTripPalette.avatarBlueText,
+      avatarTone: _TripMemberTone.blue,
     ),
     const _TripMember(
       name: 'Jordan Smith',
       initials: 'JS',
-      avatarColor: _CreateTripPalette.avatarGreen,
-      avatarTextColor: _CreateTripPalette.avatarGreenText,
+      avatarTone: _TripMemberTone.green,
     ),
     const _TripMember(
       name: 'Casey Wong',
       initials: 'CW',
-      avatarColor: _CreateTripPalette.avatarSoft,
-      avatarTextColor: _CreateTripPalette.avatarBlueText,
+      avatarTone: _TripMemberTone.soft,
     ),
   ];
 
@@ -86,6 +83,10 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
     final DateTime initialDate = isDeparture
         ? (_departureDate ?? now)
         : (_returnDate ?? _departureDate ?? now);
+    final ThemeData theme = Theme.of(context);
+    final AppColors appColors = theme.extension<AppColors>()!;
+    final CreateTripColorTokens colors = appColors.createTrip;
+    final SharedColorTokens shared = appColors.shared;
 
     final DateTime? pickedDate = await showDatePicker(
       context: context,
@@ -94,12 +95,15 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
       lastDate: DateTime(now.year + 5),
       builder: (BuildContext context, Widget? child) {
         return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(
-              primary: _CreateTripPalette.orange,
-              onPrimary: Colors.white,
-              surface: Colors.white,
-              onSurface: _CreateTripPalette.textPrimary,
+          data: theme.copyWith(
+            colorScheme: theme.colorScheme.copyWith(
+              primary: colors.orange,
+              onPrimary: shared.white,
+              surface: shared.cardBackground,
+              onSurface: colors.textPrimary,
+            ),
+            dialogTheme: DialogThemeData(
+              backgroundColor: shared.cardBackground,
             ),
           ),
           child: child!,
@@ -129,16 +133,15 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
       return;
     }
 
-    final _AvatarStyle avatarStyle =
-        _memberAvatarStyles[_members.length % _memberAvatarStyles.length];
+    final _TripMemberTone avatarTone =
+        _memberAvatarTones[_members.length % _memberAvatarTones.length];
 
     setState(() {
       _members.add(
         _TripMember(
           name: rawValue,
           initials: _buildInitials(rawValue),
-          avatarColor: avatarStyle.backgroundColor,
-          avatarTextColor: avatarStyle.textColor,
+          avatarTone: avatarTone,
         ),
       );
       _memberController.clear();
@@ -166,6 +169,8 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
 
   void _showCurrencyPickerSheet() {
     FocusManager.instance.primaryFocus?.unfocus();
+    final AppColors appColors = Theme.of(context).extension<AppColors>()!;
+    final CreateTripColorTokens colors = appColors.createTrip;
 
     showCurrencyPicker(
       context: context,
@@ -180,26 +185,26 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
         });
       },
       theme: CurrencyPickerThemeData(
-        backgroundColor: _CreateTripPalette.background,
+        backgroundColor: colors.background,
         bottomSheetHeight: MediaQuery.sizeOf(context).height * 0.82,
         flagSize: 24,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
         titleTextStyle: GoogleFonts.geist(
-          color: _CreateTripPalette.textPrimary,
+          color: colors.textPrimary,
           fontSize: 22,
           fontWeight: FontWeight.w600,
           height: 1.2,
         ),
         subtitleTextStyle: GoogleFonts.inter(
-          color: _CreateTripPalette.textSecondary,
+          color: colors.textSecondary,
           fontSize: 14,
           fontWeight: FontWeight.w400,
           height: 1.4,
         ),
         currencySignTextStyle: GoogleFonts.jetBrainsMono(
-          color: _CreateTripPalette.textPrimary,
+          color: colors.textPrimary,
           fontSize: 14,
           fontWeight: FontWeight.w500,
           height: 1.4,
@@ -207,31 +212,28 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
         inputDecoration: InputDecoration(
           hintText: 'Search currencies',
           hintStyle: GoogleFonts.inter(
-            color: _CreateTripPalette.textPlaceholder,
+            color: colors.textPlaceholder,
             fontSize: 14,
             fontWeight: FontWeight.w400,
           ),
-          prefixIcon: const Icon(
-            Icons.search_rounded,
-            color: _CreateTripPalette.textSecondary,
-          ),
+          prefixIcon: Icon(Icons.search_rounded, color: colors.textSecondary),
           filled: true,
-          fillColor: _CreateTripPalette.fieldFill,
+          fillColor: colors.fieldFill,
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 16,
             vertical: 16,
           ),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: _CreateTripPalette.cardBorder),
+            borderSide: BorderSide(color: colors.cardBorder),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: _CreateTripPalette.cardBorder),
+            borderSide: BorderSide(color: colors.cardBorder),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: _CreateTripPalette.orange),
+            borderSide: BorderSide(color: colors.orange),
           ),
         ),
       ),
@@ -270,19 +272,21 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final AppColors appColors = Theme.of(context).extension<AppColors>()!;
+    final CreateTripColorTokens colors = appColors.createTrip;
     final Size screenSize = MediaQuery.sizeOf(context);
     final double horizontalPadding = screenSize.width < 360 ? 14 : 16;
 
     return Scaffold(
       key: const ValueKey<String>('create_trip_screen'),
-      backgroundColor: _CreateTripPalette.background,
+      backgroundColor: colors.background,
       bottomNavigationBar: TripSplitBottomNav(
         activeTab: TripSplitBottomNavTab.trips,
-        backgroundColor: _CreateTripPalette.background,
-        separatorColor: _CreateTripPalette.separator,
-        activeFillColor: _CreateTripPalette.orange,
-        activeTextColor: _CreateTripPalette.orangeText,
-        inactiveTextColor: _CreateTripPalette.textMuted,
+        backgroundColor: colors.background,
+        separatorColor: colors.separator,
+        activeFillColor: colors.orange,
+        activeTextColor: colors.orangeText,
+        inactiveTextColor: colors.textMuted,
         onCalculatorTap: () => _openCalculatorFromCreateTrip(context),
         onProfileTap: () => _openProfileFromCreateTrip(context),
       ),
@@ -354,7 +358,7 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
                         'You can add expenses after creating the trip.',
                         textAlign: TextAlign.center,
                         style: GoogleFonts.inter(
-                          color: _CreateTripPalette.textSecondary,
+                          color: colors.textSecondary,
                           fontSize: 14,
                           fontWeight: FontWeight.w400,
                           height: 1.43,
@@ -379,8 +383,12 @@ class _CreateTripHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final CreateTripColorTokens colors = Theme.of(
+      context,
+    ).extension<AppColors>()!.createTrip;
+
     return Material(
-      color: _CreateTripPalette.background,
+      color: colors.background,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
@@ -412,7 +420,7 @@ class _CreateTripHeader extends StatelessWidget {
                       child: Text(
                         'TRIPSPLIT',
                         style: GoogleFonts.geist(
-                          color: _CreateTripPalette.orange,
+                          color: colors.orange,
                           fontSize: 24,
                           fontWeight: FontWeight.w700,
                           height: 1.2,
@@ -427,12 +435,12 @@ class _CreateTripHeader extends StatelessWidget {
                       padding: EdgeInsets.zero,
                       minimumSize: const Size(40, 36),
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      foregroundColor: _CreateTripPalette.orange,
+                      foregroundColor: colors.orange,
                     ),
                     child: Text(
                       'SAVE',
                       style: GoogleFonts.jetBrainsMono(
-                        color: _CreateTripPalette.orange,
+                        color: colors.orange,
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
                         height: 1.45,
@@ -459,6 +467,9 @@ class _CreateTripHero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final CreateTripColorTokens colors = Theme.of(
+      context,
+    ).extension<AppColors>()!.createTrip;
     final bool compact = MediaQuery.sizeOf(context).width < 360;
 
     return Column(
@@ -467,7 +478,7 @@ class _CreateTripHero extends StatelessWidget {
         Text(
           'NEW ITINERARY',
           style: GoogleFonts.jetBrainsMono(
-            color: _CreateTripPalette.textSecondary,
+            color: colors.textSecondary,
             fontSize: 11,
             fontWeight: FontWeight.w700,
             height: 1.45,
@@ -478,7 +489,7 @@ class _CreateTripHero extends StatelessWidget {
         Text(
           'Create Trip',
           style: GoogleFonts.geist(
-            color: _CreateTripPalette.textPrimary,
+            color: colors.textPrimary,
             fontSize: compact ? 30 : 32,
             fontWeight: FontWeight.w700,
             height: 1.1,
@@ -524,19 +535,22 @@ class _CreateTripCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final AppColors appColors = Theme.of(context).extension<AppColors>()!;
+    final CreateTripColorTokens colors = appColors.createTrip;
+    final SharedColorTokens shared = appColors.shared;
     final double cardPadding = MediaQuery.sizeOf(context).width < 360 ? 16 : 20;
 
     return Container(
       padding: EdgeInsets.all(cardPadding),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: shared.cardBackground,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: _CreateTripPalette.cardBorder),
-        boxShadow: const <BoxShadow>[
+        border: Border.all(color: colors.cardBorder),
+        boxShadow: <BoxShadow>[
           BoxShadow(
-            color: Color(0x0C000000),
+            color: shared.shadowSubtle,
             blurRadius: 30,
-            offset: Offset(0, 10),
+            offset: const Offset(0, 10),
           ),
         ],
       ),
@@ -616,7 +630,7 @@ class _CreateTripCard extends StatelessWidget {
               Text(
                 '${members.length} MEMBERS',
                 style: GoogleFonts.jetBrainsMono(
-                  color: _CreateTripPalette.textSecondary,
+                  color: colors.textSecondary,
                   fontSize: 12,
                   fontWeight: FontWeight.w400,
                   height: 1.33,
@@ -667,6 +681,10 @@ class _CreateTripTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final CreateTripColorTokens colors = Theme.of(
+      context,
+    ).extension<AppColors>()!.createTrip;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -674,14 +692,14 @@ class _CreateTripTextField extends StatelessWidget {
         const SizedBox(height: 8),
         DecoratedBox(
           decoration: BoxDecoration(
-            color: _CreateTripPalette.fieldFill,
+            color: colors.fieldFill,
             borderRadius: BorderRadius.circular(8),
           ),
           child: TextField(
             controller: controller,
-            cursorColor: _CreateTripPalette.orange,
+            cursorColor: colors.orange,
             style: GoogleFonts.inter(
-              color: _CreateTripPalette.textPrimary,
+              color: colors.textPrimary,
               fontSize: 16,
               fontWeight: FontWeight.w400,
             ),
@@ -694,7 +712,7 @@ class _CreateTripTextField extends StatelessWidget {
               ),
               hintText: hintText,
               hintStyle: GoogleFonts.inter(
-                color: _CreateTripPalette.textPlaceholder,
+                color: colors.textPlaceholder,
                 fontSize: 16,
                 fontWeight: FontWeight.w400,
               ),
@@ -719,6 +737,9 @@ class _DateField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final CreateTripColorTokens colors = Theme.of(
+      context,
+    ).extension<AppColors>()!.createTrip;
     final String text = value == null
         ? 'mm/dd/yyyy'
         : DateFormat('MM/dd/yyyy').format(value!);
@@ -729,7 +750,7 @@ class _DateField extends StatelessWidget {
         _SectionLabel(text: label),
         const SizedBox(height: 8),
         Material(
-          color: _CreateTripPalette.fieldFill,
+          color: colors.fieldFill,
           borderRadius: BorderRadius.circular(8),
           child: InkWell(
             borderRadius: BorderRadius.circular(8),
@@ -743,8 +764,8 @@ class _DateField extends StatelessWidget {
                       text,
                       style: GoogleFonts.jetBrainsMono(
                         color: value == null
-                            ? _CreateTripPalette.textPlaceholder
-                            : _CreateTripPalette.textPrimary,
+                            ? colors.textPlaceholder
+                            : colors.textPrimary,
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
                         height: 1.4,
@@ -752,10 +773,10 @@ class _DateField extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const Icon(
+                  Icon(
                     Icons.calendar_today_rounded,
                     size: 18,
-                    color: _CreateTripPalette.textSecondary,
+                    color: colors.textSecondary,
                   ),
                 ],
               ),
@@ -775,11 +796,14 @@ class _CurrencySelectorField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final AppColors appColors = Theme.of(context).extension<AppColors>()!;
+    final CreateTripColorTokens colors = appColors.createTrip;
+    final SharedColorTokens shared = appColors.shared;
     final String flag = _currencyFlagEmoji(currency);
 
     return Material(
       key: const ValueKey<String>('create_trip_currency_selector'),
-      color: _CreateTripPalette.fieldFill,
+      color: colors.fieldFill,
       borderRadius: BorderRadius.circular(12),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
@@ -788,7 +812,7 @@ class _CurrencySelectorField extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: _CreateTripPalette.cardBorder),
+            border: Border.all(color: colors.cardBorder),
           ),
           child: Row(
             children: <Widget>[
@@ -797,10 +821,10 @@ class _CurrencySelectorField extends StatelessWidget {
                 height: 44,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: shared.cardBackground,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: _CreateTripPalette.cardBorder.withValues(alpha: 0.8),
+                    color: colors.cardBorder.withValues(alpha: 0.8),
                   ),
                 ),
                 child: Text(
@@ -818,7 +842,7 @@ class _CurrencySelectorField extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: GoogleFonts.inter(
-                        color: _CreateTripPalette.textPrimary,
+                        color: colors.textPrimary,
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                         height: 1.3,
@@ -828,7 +852,7 @@ class _CurrencySelectorField extends StatelessWidget {
                     Text(
                       '${currency.code} | ${currency.symbol}',
                       style: GoogleFonts.jetBrainsMono(
-                        color: _CreateTripPalette.textSecondary,
+                        color: colors.textSecondary,
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
                         height: 1.4,
@@ -838,9 +862,9 @@ class _CurrencySelectorField extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              const Icon(
+              Icon(
                 Icons.keyboard_arrow_down_rounded,
-                color: _CreateTripPalette.textSecondary,
+                color: colors.textSecondary,
               ),
             ],
           ),
@@ -858,13 +882,17 @@ class _MemberChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final CreateTripColorTokens colors = Theme.of(
+      context,
+    ).extension<AppColors>()!.createTrip;
+
     return Container(
       height: 42,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: _CreateTripPalette.fieldFill,
+        color: colors.fieldFill,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: _CreateTripPalette.cardBorder),
+        border: Border.all(color: colors.cardBorder),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -874,14 +902,14 @@ class _MemberChip extends StatelessWidget {
             height: 24,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: member.avatarColor,
+              color: member.avatarColor(context),
               shape: BoxShape.circle,
             ),
             child: Text(
               member.initials,
               textAlign: TextAlign.center,
               style: GoogleFonts.inter(
-                color: member.avatarTextColor,
+                color: member.avatarTextColor(context),
                 fontSize: 10,
                 fontWeight: FontWeight.w700,
                 height: 1.5,
@@ -894,7 +922,7 @@ class _MemberChip extends StatelessWidget {
               member.name,
               overflow: TextOverflow.ellipsis,
               style: GoogleFonts.inter(
-                color: _CreateTripPalette.textPrimary,
+                color: colors.textPrimary,
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
                 height: 1.43,
@@ -906,12 +934,12 @@ class _MemberChip extends StatelessWidget {
             InkWell(
               onTap: onRemove,
               borderRadius: BorderRadius.circular(999),
-              child: const Padding(
+              child: Padding(
                 padding: EdgeInsets.all(2),
                 child: Icon(
                   Icons.close_rounded,
                   size: 14,
-                  color: _CreateTripPalette.textSecondary,
+                  color: colors.textSecondary,
                 ),
               ),
             ),
@@ -930,6 +958,9 @@ class _AddMemberRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final AppColors appColors = Theme.of(context).extension<AppColors>()!;
+    final CreateTripColorTokens colors = appColors.createTrip;
+    final SharedColorTokens shared = appColors.shared;
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
         final bool stacked = constraints.maxWidth < 320;
@@ -937,15 +968,15 @@ class _AddMemberRow extends StatelessWidget {
         final Widget field = Expanded(
           child: DecoratedBox(
             decoration: BoxDecoration(
-              color: _CreateTripPalette.fieldFill,
+              color: colors.fieldFill,
               borderRadius: BorderRadius.circular(8),
             ),
             child: TextField(
               controller: controller,
               onSubmitted: (_) => onAddMember(),
-              cursorColor: _CreateTripPalette.orange,
+              cursorColor: colors.orange,
               style: GoogleFonts.inter(
-                color: _CreateTripPalette.textPrimary,
+                color: colors.textPrimary,
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
               ),
@@ -958,7 +989,7 @@ class _AddMemberRow extends StatelessWidget {
                 ),
                 hintText: 'Name or email',
                 hintStyle: GoogleFonts.inter(
-                  color: _CreateTripPalette.textPlaceholder,
+                  color: colors.textPlaceholder,
                   fontSize: 14,
                   fontWeight: FontWeight.w400,
                 ),
@@ -973,8 +1004,8 @@ class _AddMemberRow extends StatelessWidget {
           child: ElevatedButton(
             onPressed: onAddMember,
             style: ElevatedButton.styleFrom(
-              backgroundColor: _CreateTripPalette.darkButton,
-              foregroundColor: Colors.white,
+              backgroundColor: colors.darkButton,
+              foregroundColor: shared.white,
               elevation: 0,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
@@ -985,7 +1016,7 @@ class _AddMemberRow extends StatelessWidget {
               stacked ? 'ADD MEMBER' : 'ADD\nMEMBER',
               textAlign: TextAlign.center,
               style: GoogleFonts.jetBrainsMono(
-                color: Colors.white,
+                color: shared.white,
                 fontSize: 10,
                 fontWeight: FontWeight.w400,
                 height: 1.3,
@@ -1022,10 +1053,13 @@ class _SplitTypeSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final AppColors appColors = Theme.of(context).extension<AppColors>()!;
+    final CreateTripColorTokens colors = appColors.createTrip;
+    final SharedColorTokens shared = appColors.shared;
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: _CreateTripPalette.fieldFill,
+        color: colors.fieldFill,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -1034,7 +1068,7 @@ class _SplitTypeSelector extends StatelessWidget {
 
           return Expanded(
             child: Material(
-              color: selected ? Colors.white : Colors.transparent,
+              color: selected ? shared.cardBackground : shared.transparent,
               borderRadius: BorderRadius.circular(8),
               child: InkWell(
                 borderRadius: BorderRadius.circular(8),
@@ -1042,12 +1076,12 @@ class _SplitTypeSelector extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   decoration: selected
-                      ? const BoxDecoration(
+                      ? BoxDecoration(
                           boxShadow: <BoxShadow>[
                             BoxShadow(
-                              color: Color(0x0C000000),
+                              color: shared.shadowSubtle,
                               blurRadius: 2,
-                              offset: Offset(0, 1),
+                              offset: const Offset(0, 1),
                             ),
                           ],
                         )
@@ -1057,8 +1091,8 @@ class _SplitTypeSelector extends StatelessWidget {
                     textAlign: TextAlign.center,
                     style: GoogleFonts.jetBrainsMono(
                       color: selected
-                          ? _CreateTripPalette.textPrimary
-                          : _CreateTripPalette.textSecondary,
+                          ? colors.textPrimary
+                          : colors.textSecondary,
                       fontSize: 12,
                       fontWeight: FontWeight.w400,
                       height: 1.33,
@@ -1081,34 +1115,37 @@ class _CreateTripPrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final AppColors appColors = Theme.of(context).extension<AppColors>()!;
+    final CreateTripColorTokens colors = appColors.createTrip;
+    final SharedColorTokens shared = appColors.shared;
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
         key: const ValueKey<String>('create_trip_submit_button'),
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: _CreateTripPalette.orange,
-          foregroundColor: Colors.white,
+          backgroundColor: colors.orange,
+          foregroundColor: shared.white,
           elevation: 0,
           padding: const EdgeInsets.symmetric(vertical: 20),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          shadowColor: Colors.transparent,
+          shadowColor: shared.transparent,
         ),
         child: Ink(
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             boxShadow: <BoxShadow>[
               BoxShadow(
-                color: Color(0x19000000),
+                color: shared.shadowStrong,
                 blurRadius: 6,
-                offset: Offset(0, 4),
+                offset: const Offset(0, 4),
                 spreadRadius: -4,
               ),
               BoxShadow(
-                color: Color(0x19000000),
+                color: shared.shadowStrong,
                 blurRadius: 15,
-                offset: Offset(0, 10),
+                offset: const Offset(0, 10),
                 spreadRadius: -3,
               ),
             ],
@@ -1116,7 +1153,7 @@ class _CreateTripPrimaryButton extends StatelessWidget {
           child: Text(
             'CREATE TRIP',
             style: GoogleFonts.geist(
-              color: Colors.white,
+              color: shared.white,
               fontSize: 20,
               fontWeight: FontWeight.w600,
               height: 1.2,
@@ -1136,10 +1173,13 @@ class _SectionLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final CreateTripColorTokens colors = Theme.of(
+      context,
+    ).extension<AppColors>()!.createTrip;
     return Text(
       text,
       style: GoogleFonts.jetBrainsMono(
-        color: _CreateTripPalette.textSecondary,
+        color: colors.textSecondary,
         fontSize: 11,
         fontWeight: FontWeight.w700,
         height: 1.45,
@@ -1163,6 +1203,9 @@ class _DashedSeparator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final CreateTripColorTokens colors = Theme.of(
+      context,
+    ).extension<AppColors>()!.createTrip;
     const double dashWidth = 4;
     const double gapWidth = 3;
     const double thickness = 1;
@@ -1180,13 +1223,11 @@ class _DashedSeparator extends StatelessWidget {
                 padding: EdgeInsets.only(
                   right: index == dashCount - 1 ? 0 : gapWidth,
                 ),
-                child: const SizedBox(
+                child: SizedBox(
                   width: dashWidth,
                   height: thickness,
                   child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: _CreateTripPalette.separator,
-                    ),
+                    decoration: BoxDecoration(color: colors.separator),
                   ),
                 ),
               );
@@ -1202,16 +1243,47 @@ class _TripMember {
   const _TripMember({
     required this.name,
     required this.initials,
-    required this.avatarColor,
-    required this.avatarTextColor,
+    required this.avatarTone,
     this.isCurrentUser = false,
   });
 
   final String name;
   final String initials;
-  final Color avatarColor;
-  final Color avatarTextColor;
+  final _TripMemberTone avatarTone;
   final bool isCurrentUser;
+
+  Color avatarColor(BuildContext context) {
+    final AppColors appColors = Theme.of(context).extension<AppColors>()!;
+    final CreateTripColorTokens colors = appColors.createTrip;
+
+    switch (avatarTone) {
+      case _TripMemberTone.currentUser:
+        return colors.orange;
+      case _TripMemberTone.blue:
+        return colors.avatarBlue;
+      case _TripMemberTone.green:
+        return colors.avatarGreen;
+      case _TripMemberTone.soft:
+        return colors.avatarSoft;
+    }
+  }
+
+  Color avatarTextColor(BuildContext context) {
+    final AppColors appColors = Theme.of(context).extension<AppColors>()!;
+    final CreateTripColorTokens colors = appColors.createTrip;
+    final SharedColorTokens shared = appColors.shared;
+
+    switch (avatarTone) {
+      case _TripMemberTone.currentUser:
+        return shared.white;
+      case _TripMemberTone.blue:
+        return colors.avatarBlueText;
+      case _TripMemberTone.green:
+        return colors.avatarGreenText;
+      case _TripMemberTone.soft:
+        return colors.avatarBlueText;
+    }
+  }
 
   TripParticipant toTripParticipant() {
     return TripParticipant(
@@ -1222,46 +1294,13 @@ class _TripMember {
   }
 }
 
-class _AvatarStyle {
-  const _AvatarStyle({required this.backgroundColor, required this.textColor});
+enum _TripMemberTone { currentUser, blue, green, soft }
 
-  final Color backgroundColor;
-  final Color textColor;
-}
-
-const List<_AvatarStyle> _memberAvatarStyles = <_AvatarStyle>[
-  _AvatarStyle(
-    backgroundColor: _CreateTripPalette.avatarBlue,
-    textColor: _CreateTripPalette.avatarBlueText,
-  ),
-  _AvatarStyle(
-    backgroundColor: _CreateTripPalette.avatarGreen,
-    textColor: _CreateTripPalette.avatarGreenText,
-  ),
-  _AvatarStyle(
-    backgroundColor: _CreateTripPalette.avatarSoft,
-    textColor: _CreateTripPalette.avatarBlueText,
-  ),
+const List<_TripMemberTone> _memberAvatarTones = <_TripMemberTone>[
+  _TripMemberTone.blue,
+  _TripMemberTone.green,
+  _TripMemberTone.soft,
 ];
-
-class _CreateTripPalette {
-  static const Color background = Color(0xFFFDFCFB);
-  static const Color textPrimary = Color(0xFF151B2B);
-  static const Color textSecondary = Color(0xFF564338);
-  static const Color textMuted = Color(0xFF404758);
-  static const Color textPlaceholder = Color(0x7F564338);
-  static const Color orange = Color(0xFFFF8A3D);
-  static const Color orangeText = Color(0xFF682D00);
-  static const Color darkButton = Color(0xFF151B2B);
-  static const Color fieldFill = Color(0xFFF8F6F2);
-  static const Color cardBorder = Color(0xFFD8CFC4);
-  static const Color separator = Color(0xFFA58C7F);
-  static const Color avatarBlue = Color(0xFFC0C6DB);
-  static const Color avatarBlueText = Color(0xFF293041);
-  static const Color avatarGreen = Color(0xFF4DE082);
-  static const Color avatarGreenText = Color(0xFF003919);
-  static const Color avatarSoft = Color(0xFFDCE2F8);
-}
 
 String _buildInitials(String value) {
   final List<String> words = value

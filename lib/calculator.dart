@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'app_colors.dart';
 import 'app_routes.dart';
 import 'tripsplit_bottom_nav.dart';
 
@@ -292,26 +293,28 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final CalculatorColorTokens colors = Theme.of(
+      context,
+    ).extension<AppColors>()!.calculator;
     final double horizontalPadding = MediaQuery.sizeOf(context).width < 360
         ? 14
         : 16;
 
     return Scaffold(
       key: const ValueKey<String>('calculator_screen'),
-      backgroundColor: _CalculatorPalette.background,
+      backgroundColor: colors.background,
       bottomNavigationBar: TripSplitBottomNav(
         activeTab: TripSplitBottomNavTab.calculator,
-        backgroundColor: _CalculatorPalette.background,
-        separatorColor: _CalculatorPalette.separator,
-        activeFillColor: _CalculatorPalette.orange,
-        activeTextColor: _CalculatorPalette.orangeText,
-        inactiveTextColor: _CalculatorPalette.textMuted,
+        backgroundColor: colors.background,
+        separatorColor: colors.separator,
+        activeFillColor: colors.orange,
+        activeTextColor: colors.orangeText,
+        inactiveTextColor: colors.textMuted,
         onTripsTap: () => Navigator.of(
           context,
         ).popUntil((Route<dynamic> route) => route.isFirst),
-        onProfileTap: () => Navigator.of(
-          context,
-        ).pushNamed(TripSplitRoutes.profile),
+        onProfileTap: () =>
+            Navigator.of(context).pushNamed(TripSplitRoutes.profile),
       ),
       body: SafeArea(
         bottom: false,
@@ -378,8 +381,12 @@ class _CalculatorHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final CalculatorColorTokens colors = Theme.of(
+      context,
+    ).extension<AppColors>()!.calculator;
+
     return Material(
-      color: _CalculatorPalette.background,
+      color: colors.background,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
@@ -394,7 +401,7 @@ class _CalculatorHeader extends StatelessWidget {
                         'assets/icons/plane.png',
                         width: 18,
                         height: 18,
-                        color: _CalculatorPalette.orange,
+                        color: colors.orange,
                         colorBlendMode: BlendMode.srcIn,
                         fit: BoxFit.contain,
                       ),
@@ -402,7 +409,7 @@ class _CalculatorHeader extends StatelessWidget {
                       Text(
                         'TRIPSPLIT',
                         style: GoogleFonts.geist(
-                          color: _CalculatorPalette.textPrimary,
+                          color: colors.textPrimary,
                           fontSize: 20,
                           fontWeight: FontWeight.w600,
                           height: 1.2,
@@ -431,32 +438,39 @@ class _CalculatorProfileAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final AppColors appColors = Theme.of(context).extension<AppColors>()!;
+    final CalculatorColorTokens colors = appColors.calculator;
+    final SharedColorTokens shared = appColors.shared;
+
     return Container(
       width: 40,
       height: 40,
       padding: const EdgeInsets.all(2),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: shared.cardBackground,
         shape: BoxShape.circle,
-        border: Border.all(color: _CalculatorPalette.separator),
-        boxShadow: const <BoxShadow>[
+        border: Border.all(color: colors.separator),
+        boxShadow: <BoxShadow>[
           BoxShadow(
-            color: Color(0x0C000000),
+            color: shared.shadowSubtle,
             blurRadius: 2,
             offset: Offset(0, 1),
           ),
         ],
       ),
       child: DecoratedBox(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           shape: BoxShape.circle,
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: <Color>[Color(0xFFF6D4C0), Color(0xFFB77C5C)],
+            colors: <Color>[
+              shared.avatarGradientTop,
+              shared.avatarGradientBottom,
+            ],
           ),
         ),
-        child: const Icon(Icons.person_rounded, size: 20, color: Colors.white),
+        child: Icon(Icons.person_rounded, size: 20, color: shared.white),
       ),
     );
   }
@@ -475,6 +489,10 @@ class _CalculatorDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final CalculatorColorTokens colors = Theme.of(
+      context,
+    ).extension<AppColors>()!.calculator;
+
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
         final double height = constraints.maxWidth < 360 ? 220 : 250;
@@ -484,9 +502,9 @@ class _CalculatorDisplay extends StatelessWidget {
           height: height,
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 20),
           decoration: BoxDecoration(
-            color: _CalculatorPalette.displayFill,
+            color: colors.displayFill,
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: _CalculatorPalette.borderSoft),
+            border: Border.all(color: colors.borderSoft),
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -501,7 +519,7 @@ class _CalculatorDisplay extends StatelessWidget {
                       key: const ValueKey<String>('calculator_expression_text'),
                       textAlign: TextAlign.center,
                       style: GoogleFonts.jetBrainsMono(
-                        color: _CalculatorPalette.textMuted,
+                        color: colors.textMuted,
                         fontSize: 20,
                         fontWeight: FontWeight.w500,
                         height: 1.3,
@@ -518,9 +536,7 @@ class _CalculatorDisplay extends StatelessWidget {
                   key: const ValueKey<String>('calculator_display_text'),
                   textAlign: TextAlign.center,
                   style: GoogleFonts.geist(
-                    color: hasError
-                        ? _CalculatorPalette.red
-                        : _CalculatorPalette.displayText,
+                    color: hasError ? colors.red : colors.displayText,
                     fontSize: fontSize,
                     fontWeight: FontWeight.w700,
                     height: 1.0,
@@ -557,6 +573,10 @@ class _CalculatorKeypad extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final AppColors appColors = Theme.of(context).extension<AppColors>()!;
+    final CalculatorColorTokens colors = appColors.calculator;
+    final SharedColorTokens shared = appColors.shared;
+
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
         const double gap = 8;
@@ -572,7 +592,7 @@ class _CalculatorKeypad extends StatelessWidget {
                   width: buttonWidth,
                   height: buttonHeight,
                   label: 'C',
-                  foregroundColor: _CalculatorPalette.textPrimary,
+                  foregroundColor: colors.textPrimary,
                   onTap: onClearTap,
                 ),
                 const SizedBox(width: gap),
@@ -580,7 +600,7 @@ class _CalculatorKeypad extends StatelessWidget {
                   width: buttonWidth,
                   height: buttonHeight,
                   icon: Icons.backspace_outlined,
-                  foregroundColor: _CalculatorPalette.textPrimary,
+                  foregroundColor: colors.textPrimary,
                   onTap: onDeleteTap,
                 ),
                 const SizedBox(width: gap),
@@ -588,7 +608,7 @@ class _CalculatorKeypad extends StatelessWidget {
                   width: buttonWidth,
                   height: buttonHeight,
                   label: '%',
-                  foregroundColor: _CalculatorPalette.displayText,
+                  foregroundColor: colors.displayText,
                   onTap: onPercentTap,
                 ),
                 const SizedBox(width: gap),
@@ -596,7 +616,7 @@ class _CalculatorKeypad extends StatelessWidget {
                   width: buttonWidth,
                   height: buttonHeight,
                   label: _CalculatorOperation.divide.symbol,
-                  foregroundColor: _CalculatorPalette.displayText,
+                  foregroundColor: colors.displayText,
                   onTap: () => onOperationTap(_CalculatorOperation.divide),
                 ),
               ],
@@ -605,18 +625,21 @@ class _CalculatorKeypad extends StatelessWidget {
             Row(
               children: <Widget>[
                 _digitButton(
+                  context: context,
                   width: buttonWidth,
                   height: buttonHeight,
                   digit: '7',
                 ),
                 const SizedBox(width: gap),
                 _digitButton(
+                  context: context,
                   width: buttonWidth,
                   height: buttonHeight,
                   digit: '8',
                 ),
                 const SizedBox(width: gap),
                 _digitButton(
+                  context: context,
                   width: buttonWidth,
                   height: buttonHeight,
                   digit: '9',
@@ -626,7 +649,7 @@ class _CalculatorKeypad extends StatelessWidget {
                   width: buttonWidth,
                   height: buttonHeight,
                   label: _CalculatorOperation.multiply.symbol,
-                  foregroundColor: _CalculatorPalette.displayText,
+                  foregroundColor: colors.displayText,
                   onTap: () => onOperationTap(_CalculatorOperation.multiply),
                 ),
               ],
@@ -635,18 +658,21 @@ class _CalculatorKeypad extends StatelessWidget {
             Row(
               children: <Widget>[
                 _digitButton(
+                  context: context,
                   width: buttonWidth,
                   height: buttonHeight,
                   digit: '4',
                 ),
                 const SizedBox(width: gap),
                 _digitButton(
+                  context: context,
                   width: buttonWidth,
                   height: buttonHeight,
                   digit: '5',
                 ),
                 const SizedBox(width: gap),
                 _digitButton(
+                  context: context,
                   width: buttonWidth,
                   height: buttonHeight,
                   digit: '6',
@@ -656,7 +682,7 @@ class _CalculatorKeypad extends StatelessWidget {
                   width: buttonWidth,
                   height: buttonHeight,
                   label: _CalculatorOperation.subtract.symbol,
-                  foregroundColor: _CalculatorPalette.displayText,
+                  foregroundColor: colors.displayText,
                   onTap: () => onOperationTap(_CalculatorOperation.subtract),
                 ),
               ],
@@ -665,18 +691,21 @@ class _CalculatorKeypad extends StatelessWidget {
             Row(
               children: <Widget>[
                 _digitButton(
+                  context: context,
                   width: buttonWidth,
                   height: buttonHeight,
                   digit: '1',
                 ),
                 const SizedBox(width: gap),
                 _digitButton(
+                  context: context,
                   width: buttonWidth,
                   height: buttonHeight,
                   digit: '2',
                 ),
                 const SizedBox(width: gap),
                 _digitButton(
+                  context: context,
                   width: buttonWidth,
                   height: buttonHeight,
                   digit: '3',
@@ -686,7 +715,7 @@ class _CalculatorKeypad extends StatelessWidget {
                   width: buttonWidth,
                   height: buttonHeight,
                   label: _CalculatorOperation.add.symbol,
-                  foregroundColor: _CalculatorPalette.displayText,
+                  foregroundColor: colors.displayText,
                   onTap: () => onOperationTap(_CalculatorOperation.add),
                 ),
               ],
@@ -695,6 +724,7 @@ class _CalculatorKeypad extends StatelessWidget {
             Row(
               children: <Widget>[
                 _digitButton(
+                  context: context,
                   width: zeroWidth,
                   height: buttonHeight,
                   digit: '0',
@@ -704,7 +734,7 @@ class _CalculatorKeypad extends StatelessWidget {
                   width: buttonWidth,
                   height: buttonHeight,
                   label: '.',
-                  foregroundColor: _CalculatorPalette.textPrimary,
+                  foregroundColor: colors.textPrimary,
                   onTap: onDecimalTap,
                 ),
                 const SizedBox(width: gap),
@@ -712,8 +742,8 @@ class _CalculatorKeypad extends StatelessWidget {
                   width: buttonWidth,
                   height: buttonHeight,
                   label: '=',
-                  backgroundColor: _CalculatorPalette.orange,
-                  foregroundColor: Colors.white,
+                  backgroundColor: colors.orange,
+                  foregroundColor: shared.white,
                   onTap: onEqualsTap,
                 ),
               ],
@@ -725,6 +755,7 @@ class _CalculatorKeypad extends StatelessWidget {
   }
 
   Widget _digitButton({
+    required BuildContext context,
     required double width,
     required double height,
     required String digit,
@@ -733,7 +764,9 @@ class _CalculatorKeypad extends StatelessWidget {
       width: width,
       height: height,
       label: digit,
-      foregroundColor: _CalculatorPalette.textPrimary,
+      foregroundColor: Theme.of(
+        context,
+      ).extension<AppColors>()!.calculator.textPrimary,
       onTap: () => onDigitTap(digit),
     );
   }
@@ -747,24 +780,28 @@ class _CalculatorButton extends StatelessWidget {
     required this.onTap,
     this.label,
     this.icon,
-    this.backgroundColor = Colors.white,
+    this.backgroundColor,
   }) : assert(label != null || icon != null);
 
   final double width;
   final double height;
   final String? label;
   final IconData? icon;
-  final Color backgroundColor;
+  final Color? backgroundColor;
   final Color foregroundColor;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
+    final AppColors appColors = Theme.of(context).extension<AppColors>()!;
+    final CalculatorColorTokens colors = appColors.calculator;
+    final SharedColorTokens shared = appColors.shared;
+
     return SizedBox(
       width: width,
       height: height,
       child: Material(
-        color: backgroundColor,
+        color: backgroundColor ?? shared.cardBackground,
         borderRadius: BorderRadius.circular(8),
         child: InkWell(
           onTap: onTap,
@@ -772,7 +809,7 @@ class _CalculatorButton extends StatelessWidget {
           child: Ink(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: _CalculatorPalette.borderSoft),
+              border: Border.all(color: colors.borderSoft),
             ),
             child: Center(
               child: icon != null
@@ -799,6 +836,9 @@ class _CalculatorDashedSeparator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Color color = Theme.of(
+      context,
+    ).extension<AppColors>()!.calculator.separator;
     const double dashWidth = 4;
     const double gapWidth = 3;
     const double thickness = 1;
@@ -816,14 +856,10 @@ class _CalculatorDashedSeparator extends StatelessWidget {
                 padding: EdgeInsets.only(
                   right: index == dashCount - 1 ? 0 : gapWidth,
                 ),
-                child: const SizedBox(
+                child: SizedBox(
                   width: dashWidth,
                   height: thickness,
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: _CalculatorPalette.separator,
-                    ),
-                  ),
+                  child: DecoratedBox(decoration: BoxDecoration(color: color)),
                 ),
               );
             }),
@@ -832,17 +868,4 @@ class _CalculatorDashedSeparator extends StatelessWidget {
       ),
     );
   }
-}
-
-class _CalculatorPalette {
-  static const Color background = Color(0xFFFDFAF6);
-  static const Color displayFill = Color(0xFFFDF1E8);
-  static const Color borderSoft = Color(0xFFD9C4B8);
-  static const Color separator = Color(0xFFA58C7F);
-  static const Color textPrimary = Color(0xFF151B2B);
-  static const Color textMuted = Color(0xFF564338);
-  static const Color displayText = Color(0xFF9A4600);
-  static const Color orange = Color(0xFFFF8A3D);
-  static const Color orangeText = Color(0xFF682D00);
-  static const Color red = Color(0xFFBA1A1A);
 }

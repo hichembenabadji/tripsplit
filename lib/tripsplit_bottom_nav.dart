@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'app_colors.dart';
+
 enum TripSplitBottomNavTab { calculator, trips, profile }
 
 class TripSplitBottomNav extends StatelessWidget {
@@ -29,6 +31,10 @@ class TripSplitBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final SharedColorTokens shared = Theme.of(
+      context,
+    ).extension<AppColors>()!.shared;
+
     return Material(
       color: backgroundColor,
       child: SafeArea(
@@ -41,7 +47,7 @@ class TripSplitBottomNav extends StatelessWidget {
               child: _TripSplitBottomNavSeparator(color: separatorColor),
             ),
             Container(
-              color: Colors.white,
+              color: shared.navBackground,
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
               child: Center(
                 child: ConstrainedBox(
@@ -119,10 +125,13 @@ class _TripSplitBottomNavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final SharedColorTokens shared = Theme.of(
+      context,
+    ).extension<AppColors>()!.shared;
     final Color textColor = isActive ? activeTextColor : inactiveTextColor;
 
     return Material(
-      color: Colors.transparent,
+      color: shared.transparent,
       borderRadius: BorderRadius.circular(8),
       child: InkWell(
         onTap: onTap,
@@ -135,7 +144,7 @@ class _TripSplitBottomNavItem extends StatelessWidget {
             vertical: 6,
           ),
           decoration: BoxDecoration(
-            color: isActive ? activeFillColor : Colors.transparent,
+            color: isActive ? activeFillColor : shared.transparent,
             borderRadius: BorderRadius.circular(8),
           ),
           child: Column(

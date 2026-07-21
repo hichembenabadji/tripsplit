@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 
+import 'app_colors.dart';
 import 'app_routes.dart';
 import 'create_trip.dart';
 import 'trip_details.dart';
 import 'trip_store.dart';
 import 'tripsplit_bottom_nav.dart';
+import 'user_profile_widgets.dart';
 
 final Map<String, NumberFormat> _currencyFormatters = <String, NumberFormat>{};
 
@@ -80,20 +82,24 @@ class DashboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final DashboardColorTokens colors = Theme.of(
+      context,
+    ).extension<AppColors>()!.dashboard;
     final List<TripSummary> trips = TripStoreScope.of(context).trips;
+    final AppUserProfile currentUser = TripStoreScope.of(context).currentUser;
     final Size screenSize = MediaQuery.sizeOf(context);
     final double horizontalPadding = screenSize.width < 360 ? 14 : 16;
     final double titleSize = screenSize.width < 360 ? 28 : 32;
 
     return Scaffold(
-      backgroundColor: _DashboardPalette.background,
+      backgroundColor: colors.background,
       bottomNavigationBar: TripSplitBottomNav(
         activeTab: TripSplitBottomNavTab.trips,
-        backgroundColor: _DashboardPalette.background,
-        separatorColor: _DashboardPalette.borderSoft,
-        activeFillColor: _DashboardPalette.orange,
-        activeTextColor: _DashboardPalette.orangeText,
-        inactiveTextColor: _DashboardPalette.textSecondary,
+        backgroundColor: colors.background,
+        separatorColor: colors.borderSoft,
+        activeFillColor: colors.orange,
+        activeTextColor: colors.orangeText,
+        inactiveTextColor: colors.textSecondary,
         onCalculatorTap: () => _openCalculator(context),
         onProfileTap: () => _openProfile(context),
       ),
@@ -106,7 +112,7 @@ class DashboardScreen extends StatelessWidget {
         bottom: false,
         child: Column(
           children: <Widget>[
-            const _DashboardHeader(),
+            _DashboardHeader(currentUser: currentUser),
             Expanded(
               child: ListView(
                 padding: EdgeInsets.fromLTRB(
@@ -150,12 +156,18 @@ class DashboardScreen extends StatelessWidget {
 }
 
 class _DashboardHeader extends StatelessWidget {
-  const _DashboardHeader();
+  const _DashboardHeader({required this.currentUser});
+
+  final AppUserProfile currentUser;
 
   @override
   Widget build(BuildContext context) {
+    final DashboardColorTokens colors = Theme.of(
+      context,
+    ).extension<AppColors>()!.dashboard;
+
     return Material(
-      color: _DashboardPalette.background,
+      color: colors.background,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
@@ -170,7 +182,7 @@ class _DashboardHeader extends StatelessWidget {
                         'assets/icons/plane.png',
                         width: 18,
                         height: 18,
-                        color: _DashboardPalette.orange,
+                        color: colors.orange,
                         colorBlendMode: BlendMode.srcIn,
                         fit: BoxFit.contain,
                       ),
@@ -178,7 +190,7 @@ class _DashboardHeader extends StatelessWidget {
                       Text(
                         'TRIPSPLIT',
                         style: GoogleFonts.geist(
-                          color: _DashboardPalette.textPrimary,
+                          color: colors.textPrimary,
                           fontSize: 20,
                           fontWeight: FontWeight.w600,
                           height: 1.2,
@@ -188,7 +200,7 @@ class _DashboardHeader extends StatelessWidget {
                     ],
                   ),
                 ),
-                const _ProfileAvatar(),
+                _ProfileAvatar(currentUser: currentUser),
               ],
             ),
           ),
@@ -203,36 +215,34 @@ class _DashboardHeader extends StatelessWidget {
 }
 
 class _ProfileAvatar extends StatelessWidget {
-  const _ProfileAvatar();
+  const _ProfileAvatar({required this.currentUser});
+
+  final AppUserProfile currentUser;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 40,
-      height: 40,
-      padding: const EdgeInsets.all(2),
+    final AppColors appColors = Theme.of(context).extension<AppColors>()!;
+    final DashboardColorTokens colors = appColors.dashboard;
+    final SharedColorTokens shared = appColors.shared;
+
+    return DecoratedBox(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: shared.cardBackground,
         shape: BoxShape.circle,
-        border: Border.all(color: _DashboardPalette.borderSoft),
-        boxShadow: const <BoxShadow>[
+        border: Border.all(color: colors.borderSoft),
+        boxShadow: <BoxShadow>[
           BoxShadow(
-            color: Color(0x0C000000),
+            color: shared.shadowSubtle,
             blurRadius: 2,
             offset: Offset(0, 1),
           ),
         ],
       ),
-      child: DecoratedBox(
-        decoration: const BoxDecoration(
-          shape: BoxShape.circle,
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: <Color>[Color(0xFFF6D4C0), Color(0xFFB77C5C)],
-          ),
-        ),
-        child: const Icon(Icons.person_rounded, size: 20, color: Colors.white),
+      child: TripSplitUserAvatar(
+        imageBytes: currentUser.profileImageBytes,
+        size: 40,
+        padding: 2,
+        iconSize: 20,
       ),
     );
   }
@@ -245,13 +255,17 @@ class _DashboardHero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final DashboardColorTokens colors = Theme.of(
+      context,
+    ).extension<AppColors>()!.dashboard;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Text(
           'ACTIVE ITINERARIES',
           style: GoogleFonts.jetBrainsMono(
-            color: _DashboardPalette.textMuted,
+            color: colors.textMuted,
             fontSize: 11,
             fontWeight: FontWeight.w700,
             height: 1.45,
@@ -262,7 +276,7 @@ class _DashboardHero extends StatelessWidget {
         Text(
           'My Trips',
           style: GoogleFonts.geist(
-            color: _DashboardPalette.textPrimary,
+            color: colors.textPrimary,
             fontSize: titleSize,
             fontWeight: FontWeight.w700,
             height: 1.2,
@@ -288,15 +302,19 @@ class _OverviewCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final AppColors appColors = Theme.of(context).extension<AppColors>()!;
+    final DashboardColorTokens colors = appColors.dashboard;
+    final SharedColorTokens shared = appColors.shared;
+
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: shared.cardBackground,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: _DashboardPalette.border),
-        boxShadow: const <BoxShadow>[
+        border: Border.all(color: colors.border),
+        boxShadow: <BoxShadow>[
           BoxShadow(
-            color: Color(0x0C000000),
+            color: shared.shadowSubtle,
             blurRadius: 2,
             offset: Offset(0, 1),
           ),
@@ -316,7 +334,7 @@ class _OverviewCard extends StatelessWidget {
                     Text(
                       'Active Trips: $activeTrips',
                       style: GoogleFonts.inter(
-                        color: _DashboardPalette.textSecondary,
+                        color: colors.textSecondary,
                         fontSize: 16,
                         fontWeight: FontWeight.w400,
                         height: 1.5,
@@ -339,7 +357,7 @@ class _OverviewCard extends StatelessWidget {
                     ),
                     textAlign: TextAlign.right,
                     style: GoogleFonts.jetBrainsMono(
-                      color: _DashboardPalette.textPrimary,
+                      color: colors.textPrimary,
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
                       height: 1.4,
@@ -358,7 +376,7 @@ class _OverviewCard extends StatelessWidget {
                 child: _BalanceTile(
                   label: 'YOU ARE OWED',
                   amount: amountOwedToYou,
-                  amountColor: _DashboardPalette.green,
+                  amountColor: colors.green,
                 ),
               ),
               const SizedBox(width: 12),
@@ -366,7 +384,7 @@ class _OverviewCard extends StatelessWidget {
                 child: _BalanceTile(
                   label: 'YOU OWE',
                   amount: -amountYouOwe,
-                  amountColor: _DashboardPalette.red,
+                  amountColor: colors.red,
                 ),
               ),
             ],
@@ -390,13 +408,15 @@ class _BalanceTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final DashboardColorTokens colors = Theme.of(
+      context,
+    ).extension<AppColors>()!.dashboard;
+
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: _DashboardPalette.borderSoft.withValues(alpha: 0.55),
-        ),
+        border: Border.all(color: colors.borderSoft.withValues(alpha: 0.55)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -404,7 +424,7 @@ class _BalanceTile extends StatelessWidget {
           Text(
             label,
             style: GoogleFonts.jetBrainsMono(
-              color: _DashboardPalette.textMuted,
+              color: colors.textMuted,
               fontSize: 10,
               fontWeight: FontWeight.w400,
               height: 1.5,
@@ -442,19 +462,23 @@ class _TripCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final AppColors appColors = Theme.of(context).extension<AppColors>()!;
+    final DashboardColorTokens colors = appColors.dashboard;
+    final SharedColorTokens shared = appColors.shared;
+
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        boxShadow: const <BoxShadow>[
+        boxShadow: <BoxShadow>[
           BoxShadow(
-            color: Color(0x0C000000),
+            color: shared.shadowSubtle,
             blurRadius: 2,
             offset: Offset(0, 1),
           ),
         ],
       ),
       child: Material(
-        color: Colors.white,
+        color: shared.cardBackground,
         borderRadius: BorderRadius.circular(12),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
@@ -463,7 +487,7 @@ class _TripCard extends StatelessWidget {
           child: Ink(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: _DashboardPalette.border),
+              border: Border.all(color: colors.border),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -480,7 +504,7 @@ class _TripCard extends StatelessWidget {
                             child: Text(
                               trip.title,
                               style: GoogleFonts.geist(
-                                color: _DashboardPalette.textPrimary,
+                                color: colors.textPrimary,
                                 fontSize: 20,
                                 fontWeight: FontWeight.w600,
                                 height: 1.2,
@@ -494,17 +518,17 @@ class _TripCard extends StatelessWidget {
                       const SizedBox(height: 8),
                       Row(
                         children: <Widget>[
-                          const Icon(
+                          Icon(
                             Icons.calendar_today_rounded,
                             size: 14,
-                            color: _DashboardPalette.textMuted,
+                            color: colors.textMuted,
                           ),
                           const SizedBox(width: 6),
                           Expanded(
                             child: Text(
                               trip.dateRangeLabel,
                               style: GoogleFonts.inter(
-                                color: _DashboardPalette.textMuted,
+                                color: colors.textMuted,
                                 fontSize: 14,
                                 fontWeight: FontWeight.w400,
                                 height: 1.43,
@@ -537,7 +561,7 @@ class _TripCard extends StatelessWidget {
                       Text(
                         'TOTAL',
                         style: GoogleFonts.jetBrainsMono(
-                          color: _DashboardPalette.textMuted,
+                          color: colors.textMuted,
                           fontSize: 16,
                           fontWeight: FontWeight.w400,
                           height: 1.5,
@@ -555,7 +579,7 @@ class _TripCard extends StatelessWidget {
                               currencySymbol: trip.currencySymbol,
                             ),
                             style: GoogleFonts.jetBrainsMono(
-                              color: _DashboardPalette.textPrimary,
+                              color: colors.textPrimary,
                               fontSize: 16,
                               fontWeight: FontWeight.w400,
                               height: 1.5,
@@ -582,16 +606,20 @@ class _StatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final DashboardColorTokens colors = Theme.of(
+      context,
+    ).extension<AppColors>()!.dashboard;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: status.backgroundColor,
+        color: _dashboardStatusBackgroundColor(status, colors),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Text(
-        status.label,
+        _dashboardStatusLabel(status),
         style: GoogleFonts.jetBrainsMono(
-          color: status.textColor,
+          color: _dashboardStatusTextColor(status, colors),
           fontSize: 10,
           fontWeight: FontWeight.w400,
           height: 1.5,
@@ -608,24 +636,28 @@ class _ParticipantChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final AppColors appColors = Theme.of(context).extension<AppColors>()!;
+    final DashboardColorTokens colors = appColors.dashboard;
+    final SharedColorTokens shared = appColors.shared;
+
     return Container(
       width: 32,
       height: 32,
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: participant.isCurrentUser
-            ? _DashboardPalette.orange
-            : _DashboardPalette.participantFill,
+            ? colors.orange
+            : colors.participantFill,
         shape: BoxShape.circle,
-        border: Border.all(color: Colors.white),
+        border: Border.all(color: shared.white),
       ),
       child: Text(
         participant.dashboardLabel,
         textAlign: TextAlign.center,
         style: GoogleFonts.jetBrainsMono(
           color: participant.isCurrentUser
-              ? _DashboardPalette.orangeText
-              : _DashboardPalette.textPrimary,
+              ? colors.orangeText
+              : colors.textPrimary,
           fontSize: 10,
           fontWeight: FontWeight.w400,
           height: 1.5,
@@ -640,17 +672,21 @@ class _AddTripButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final AppColors appColors = Theme.of(context).extension<AppColors>()!;
+    final DashboardColorTokens colors = appColors.dashboard;
+    final SharedColorTokens shared = appColors.shared;
+
     return FloatingActionButton(
       key: const ValueKey<String>('dashboard_add_trip_button'),
       heroTag: 'dashboard_add_trip_button',
       tooltip: 'Create trip',
-      backgroundColor: _DashboardPalette.orange,
-      foregroundColor: Colors.white,
+      backgroundColor: colors.orange,
+      foregroundColor: shared.white,
       elevation: 8,
       focusElevation: 8,
       hoverElevation: 8,
       highlightElevation: 10,
-      splashColor: Colors.white.withValues(alpha: 0.12),
+      splashColor: shared.overlayWhite12,
       onPressed: () => _openCreateTrip(context),
       child: const Icon(Icons.add_rounded, size: 30),
     );
@@ -664,10 +700,14 @@ class _SectionLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final DashboardColorTokens colors = Theme.of(
+      context,
+    ).extension<AppColors>()!.dashboard;
+
     return Text(
       text,
       style: GoogleFonts.jetBrainsMono(
-        color: _DashboardPalette.textMuted,
+        color: colors.textMuted,
         fontSize: 11,
         fontWeight: FontWeight.w700,
         height: 1.45,
@@ -682,7 +722,9 @@ class _DashedSeparator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const Color color = _DashboardPalette.borderSoft;
+    final Color color = Theme.of(
+      context,
+    ).extension<AppColors>()!.dashboard.borderSoft;
     const double dashWidth = 4;
     const double gapWidth = 3;
     const double thickness = 1;
@@ -714,52 +756,41 @@ class _DashedSeparator extends StatelessWidget {
   }
 }
 
-extension _TripStatusStyle on TripStatus {
-  String get label {
-    switch (this) {
-      case TripStatus.inProgress:
-        return 'IN PROGRESS';
-      case TripStatus.upcoming:
-        return 'UPCOMING';
-      case TripStatus.settled:
-        return 'SETTLED';
-    }
-  }
-
-  Color get backgroundColor {
-    switch (this) {
-      case TripStatus.inProgress:
-        return _DashboardPalette.orange;
-      case TripStatus.upcoming:
-        return _DashboardPalette.participantFill;
-      case TripStatus.settled:
-        return _DashboardPalette.green;
-    }
-  }
-
-  Color get textColor {
-    switch (this) {
-      case TripStatus.inProgress:
-        return _DashboardPalette.orangeText;
-      case TripStatus.upcoming:
-        return _DashboardPalette.textMuted;
-      case TripStatus.settled:
-        return _DashboardPalette.greenText;
-    }
+String _dashboardStatusLabel(TripStatus status) {
+  switch (status) {
+    case TripStatus.inProgress:
+      return 'IN PROGRESS';
+    case TripStatus.upcoming:
+      return 'UPCOMING';
+    case TripStatus.settled:
+      return 'SETTLED';
   }
 }
 
-class _DashboardPalette {
-  static const Color background = Color(0xFFFDFAF6);
-  static const Color participantFill = Color(0xFFE8E4DE);
-  static const Color border = Color(0xFF564338);
-  static const Color borderSoft = Color(0xFFA58C7F);
-  static const Color textPrimary = Color(0xFF151B2B);
-  static const Color textSecondary = Color(0xFF404758);
-  static const Color textMuted = Color(0xFF564338);
-  static const Color orange = Color(0xFFFF8A3D);
-  static const Color orangeText = Color(0xFF682D00);
-  static const Color green = Color(0xFF22C268);
-  static const Color greenText = Color(0xFF004922);
-  static const Color red = Color(0xFFBA1A1A);
+Color _dashboardStatusBackgroundColor(
+  TripStatus status,
+  DashboardColorTokens colors,
+) {
+  switch (status) {
+    case TripStatus.inProgress:
+      return colors.orange;
+    case TripStatus.upcoming:
+      return colors.participantFill;
+    case TripStatus.settled:
+      return colors.green;
+  }
+}
+
+Color _dashboardStatusTextColor(
+  TripStatus status,
+  DashboardColorTokens colors,
+) {
+  switch (status) {
+    case TripStatus.inProgress:
+      return colors.orangeText;
+    case TripStatus.upcoming:
+      return colors.textMuted;
+    case TripStatus.settled:
+      return colors.greenText;
+  }
 }

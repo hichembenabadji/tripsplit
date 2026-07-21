@@ -1,4 +1,5 @@
 import 'dart:collection';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -58,6 +59,80 @@ class TripExpense {
   final ExpenseSplitType splitType;
   final String referenceCode;
   final List<TripParticipant> beneficiaries;
+}
+
+class AppUserProfile {
+  const AppUserProfile({
+    required this.firstName,
+    this.lastName,
+    required this.email,
+    this.password,
+    this.profileImageBytes,
+    required this.memberSince,
+  });
+
+  final String firstName;
+  final String? lastName;
+  final String email;
+  final String? password;
+  final Uint8List? profileImageBytes;
+  final DateTime memberSince;
+
+  String get displayName {
+    final List<String> parts = <String>[
+      firstName.trim(),
+      if (lastName != null && lastName!.trim().isNotEmpty) lastName!.trim(),
+    ];
+
+    return parts.where((String part) => part.isNotEmpty).join(' ');
+  }
+
+  String get initials {
+    final List<String> parts = displayName
+        .split(RegExp(r'\s+'))
+        .where((String token) => token.isNotEmpty)
+        .toList(growable: false);
+
+    if (parts.isEmpty) {
+      return 'Y';
+    }
+
+    return parts.take(2).map((String token) => token[0]).join().toUpperCase();
+  }
+
+  AppUserProfile copyWith({
+    String? firstName,
+    String? lastName,
+    bool clearLastName = false,
+    String? email,
+    String? password,
+    bool clearPassword = false,
+    Uint8List? profileImageBytes,
+    bool clearProfileImage = false,
+    DateTime? memberSince,
+  }) {
+    return AppUserProfile(
+      firstName: firstName ?? this.firstName,
+      lastName: clearLastName ? null : (lastName ?? this.lastName),
+      email: email ?? this.email,
+      password: clearPassword ? null : (password ?? this.password),
+      profileImageBytes: clearProfileImage
+          ? null
+          : (profileImageBytes ??
+                (this.profileImageBytes == null
+                    ? null
+                    : Uint8List.fromList(this.profileImageBytes!))),
+      memberSince: memberSince ?? this.memberSince,
+    );
+  }
+
+  static AppUserProfile seed() {
+    return AppUserProfile(
+      firstName: 'You',
+      email: 'you@example.com',
+      memberSince: kTripSplitToday,
+    );
+  }
 }
 
 class TripSummary {
@@ -158,14 +233,18 @@ class TripSummary {
 }
 
 class TripStore extends ChangeNotifier {
-  TripStore() : _trips = List<TripSummary>.of(_seedTrips);
+  TripStore()
+    : _trips = List<TripSummary>.of(_seedTrips),
+      _currentUser = AppUserProfile.seed();
 
   List<TripSummary> _trips;
+  AppUserProfile _currentUser;
   int _nextTripSequence = _seedTrips.length + 1;
   int _nextExpenseSequence = 1000;
 
   UnmodifiableListView<TripSummary> get trips =>
       UnmodifiableListView<TripSummary>(_trips);
+  AppUserProfile get currentUser => _currentUser;
 
   TripSummary? findTripById(String tripId) {
     for (final TripSummary trip in _trips) {
@@ -271,6 +350,63 @@ class TripStore extends ChangeNotifier {
         })
         .toList(growable: false);
 
+    notifyListeners();
+  }
+
+  void saveCurrentUserAccount({
+    required String firstName,
+    String? lastName,
+    required String email,
+    required String password,
+    Uint8List? profileImageBytes,
+  }) {
+    final String normalizedFirstName = firstName.trim();
+    final String normalizedLastName = lastName?.trim() ?? '';
+    final String normalizedEmail = email.trim();
+
+    if (normalizedFirstName.isEmpty || normalizedEmail.isEmpty) {
+      return;
+    }
+
+    _currentUser = _currentUser.copyWith(
+      firstName: normalizedFirstName,
+      lastName: normalizedLastName,
+      clearLastName: normalizedLastName.isEmpty,
+      email: normalizedEmail,
+      password: password,
+      profileImageBytes: profileImageBytes == null
+          ? null
+          : Uint8List.fromList(profileImageBytes),
+      clearProfileImage: profileImageBytes == null,
+    );
+    notifyListeners();
+  }
+
+  void updateCurrentUserProfile({
+    required String firstName,
+    String? lastName,
+    required String email,
+    Uint8List? profileImageBytes,
+    bool removeProfileImage = false,
+  }) {
+    final String normalizedFirstName = firstName.trim();
+    final String normalizedLastName = lastName?.trim() ?? '';
+    final String normalizedEmail = email.trim();
+
+    if (normalizedFirstName.isEmpty || normalizedEmail.isEmpty) {
+      return;
+    }
+
+    _currentUser = _currentUser.copyWith(
+      firstName: normalizedFirstName,
+      lastName: normalizedLastName,
+      clearLastName: normalizedLastName.isEmpty,
+      email: normalizedEmail,
+      profileImageBytes: profileImageBytes == null
+          ? null
+          : Uint8List.fromList(profileImageBytes),
+      clearProfileImage: removeProfileImage,
+    );
     notifyListeners();
   }
 

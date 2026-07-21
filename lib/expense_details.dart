@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 
+import 'app_colors.dart';
 import 'trip_store.dart';
 
 final Map<String, NumberFormat> _expenseDetailsCurrencyFormatters =
@@ -22,6 +23,13 @@ String _formatExpenseDetailsCurrency(
       );
 
   return formatter.format(amount);
+}
+
+extension _ExpenseDetailsThemeAccess on BuildContext {
+  AppColors get _appColors => Theme.of(this).extension<AppColors>()!;
+  ExpenseDetailsColorTokens get expenseDetailsColors =>
+      _appColors.expenseDetails;
+  SharedColorTokens get sharedColors => _appColors.shared;
 }
 
 class ExpenseDetailsScreen extends StatelessWidget {
@@ -47,7 +55,7 @@ class ExpenseDetailsScreen extends StatelessWidget {
 
     if (trip == null || expense == null) {
       return Scaffold(
-        backgroundColor: _ExpenseDetailsPalette.background,
+        backgroundColor: context.expenseDetailsColors.background,
         body: SafeArea(
           child: Center(
             child: Padding(
@@ -56,7 +64,7 @@ class ExpenseDetailsScreen extends StatelessWidget {
                 'This expense could not be found.',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.geist(
-                  color: _ExpenseDetailsPalette.textPrimary,
+                  color: context.expenseDetailsColors.textPrimary,
                   fontSize: 22,
                   fontWeight: FontWeight.w600,
                   height: 1.2,
@@ -75,7 +83,7 @@ class ExpenseDetailsScreen extends StatelessWidget {
 
     return Scaffold(
       key: const ValueKey<String>('expense_details_screen'),
-      backgroundColor: _ExpenseDetailsPalette.background,
+      backgroundColor: context.expenseDetailsColors.background,
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -171,7 +179,7 @@ class _ExpenseDetailsHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: _ExpenseDetailsPalette.background,
+      color: context.expenseDetailsColors.background,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
@@ -184,9 +192,9 @@ class _ExpenseDetailsHeader extends StatelessWidget {
                   IconButton(
                     onPressed: onBack,
                     splashRadius: 22,
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.arrow_back_rounded,
-                      color: _ExpenseDetailsPalette.orange,
+                      color: context.expenseDetailsColors.orange,
                     ),
                   ),
                   Expanded(
@@ -196,7 +204,7 @@ class _ExpenseDetailsHeader extends StatelessWidget {
                         Text(
                           'Split Details',
                           style: GoogleFonts.geist(
-                            color: _ExpenseDetailsPalette.textPrimary,
+                            color: context.expenseDetailsColors.textPrimary,
                             fontSize: 20,
                             fontWeight: FontWeight.w600,
                             height: 1.2,
@@ -206,7 +214,7 @@ class _ExpenseDetailsHeader extends StatelessWidget {
                         Text(
                           'CALCULATION LOGIC',
                           style: GoogleFonts.jetBrainsMono(
-                            color: _ExpenseDetailsPalette.textMuted,
+                            color: context.expenseDetailsColors.textMuted,
                             fontSize: 10,
                             fontWeight: FontWeight.w400,
                             height: 1.5,
@@ -219,13 +227,13 @@ class _ExpenseDetailsHeader extends StatelessWidget {
                   TextButton(
                     onPressed: onDone,
                     style: TextButton.styleFrom(
-                      foregroundColor: _ExpenseDetailsPalette.saveText,
+                      foregroundColor: context.expenseDetailsColors.saveText,
                       minimumSize: const Size(52, 36),
                     ),
                     child: Text(
                       'Done',
                       style: GoogleFonts.geist(
-                        color: _ExpenseDetailsPalette.saveText,
+                        color: context.expenseDetailsColors.saveText,
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
                         height: 1.43,
@@ -262,12 +270,12 @@ class _ExpenseHeroCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.sharedColors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: _ExpenseDetailsPalette.borderSoft),
-        boxShadow: const <BoxShadow>[
+        border: Border.all(color: context.expenseDetailsColors.borderSoft),
+        boxShadow: <BoxShadow>[
           BoxShadow(
-            color: Color(0x0C000000),
+            color: context.sharedColors.shadowSubtle,
             blurRadius: 2,
             offset: Offset(0, 1),
           ),
@@ -285,7 +293,7 @@ class _ExpenseHeroCard extends StatelessWidget {
                 'TOTAL',
                 textAlign: compact ? TextAlign.left : TextAlign.right,
                 style: GoogleFonts.jetBrainsMono(
-                  color: _ExpenseDetailsPalette.textMuted,
+                  color: context.expenseDetailsColors.textMuted,
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
                   height: 1.45,
@@ -301,7 +309,7 @@ class _ExpenseHeroCard extends StatelessWidget {
                 ),
                 textAlign: compact ? TextAlign.left : TextAlign.right,
                 style: GoogleFonts.jetBrainsMono(
-                  color: _ExpenseDetailsPalette.orange,
+                  color: context.expenseDetailsColors.orange,
                   fontSize: 22,
                   fontWeight: FontWeight.w600,
                   height: 1.2,
@@ -317,7 +325,7 @@ class _ExpenseHeroCard extends StatelessWidget {
                 Text(
                   'TRANSACTION',
                   style: GoogleFonts.jetBrainsMono(
-                    color: _ExpenseDetailsPalette.textMuted,
+                    color: context.expenseDetailsColors.textMuted,
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
                     height: 1.45,
@@ -328,7 +336,7 @@ class _ExpenseHeroCard extends StatelessWidget {
                 Text(
                   expense.title,
                   style: GoogleFonts.geist(
-                    color: _ExpenseDetailsPalette.textPrimary,
+                    color: context.expenseDetailsColors.textPrimary,
                     fontSize: 20,
                     fontWeight: FontWeight.w600,
                     height: 1.15,
@@ -347,7 +355,7 @@ class _ExpenseHeroCard extends StatelessWidget {
                           Text(
                             'TRANSACTION',
                             style: GoogleFonts.jetBrainsMono(
-                              color: _ExpenseDetailsPalette.textMuted,
+                              color: context.expenseDetailsColors.textMuted,
                               fontSize: 11,
                               fontWeight: FontWeight.w700,
                               height: 1.45,
@@ -358,7 +366,7 @@ class _ExpenseHeroCard extends StatelessWidget {
                           Text(
                             expense.title,
                             style: GoogleFonts.geist(
-                              color: _ExpenseDetailsPalette.textPrimary,
+                              color: context.expenseDetailsColors.textPrimary,
                               fontSize: 20,
                               fontWeight: FontWeight.w600,
                               height: 1.15,
@@ -450,7 +458,7 @@ class _DetailMetaColumn extends StatelessWidget {
               ? TextAlign.right
               : TextAlign.left,
           style: GoogleFonts.jetBrainsMono(
-            color: _ExpenseDetailsPalette.textMuted,
+            color: context.expenseDetailsColors.textMuted,
             fontSize: 11,
             fontWeight: FontWeight.w700,
             height: 1.45,
@@ -472,10 +480,14 @@ class _PaidByBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color avatarColor = _participantAvatarColor(participant, colorIndex);
+    final Color avatarColor = _participantAvatarColor(
+      context,
+      participant,
+      colorIndex,
+    );
     final Color textColor = participant.isCurrentUser
-        ? Colors.white
-        : _ExpenseDetailsPalette.textPrimary;
+        ? context.sharedColors.white
+        : context.expenseDetailsColors.textPrimary;
 
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -488,7 +500,9 @@ class _PaidByBadge extends StatelessWidget {
             color: avatarColor,
             shape: BoxShape.circle,
             border: Border.all(
-              color: _ExpenseDetailsPalette.borderSoft.withValues(alpha: 0.25),
+              color: context.expenseDetailsColors.borderSoft.withValues(
+                alpha: 0.25,
+              ),
             ),
           ),
           child: Text(
@@ -507,7 +521,7 @@ class _PaidByBadge extends StatelessWidget {
             _participantDisplayName(participant),
             overflow: TextOverflow.ellipsis,
             style: GoogleFonts.inter(
-              color: _ExpenseDetailsPalette.textPrimary,
+              color: context.expenseDetailsColors.textPrimary,
               fontSize: 16,
               fontWeight: FontWeight.w500,
               height: 1.5,
@@ -576,12 +590,15 @@ class _TinyParticipantBadge extends StatelessWidget {
       height: diameter,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: _participantAvatarColor(participant, colorIndex),
+        color: _participantAvatarColor(context, participant, colorIndex),
         shape: BoxShape.circle,
-        border: Border.all(color: Colors.white, width: borderWidth),
-        boxShadow: const <BoxShadow>[
+        border: Border.all(
+          color: context.sharedColors.white,
+          width: borderWidth,
+        ),
+        boxShadow: <BoxShadow>[
           BoxShadow(
-            color: Color(0x0C000000),
+            color: context.sharedColors.shadowSubtle,
             blurRadius: 2,
             offset: Offset(0, 1),
           ),
@@ -592,8 +609,8 @@ class _TinyParticipantBadge extends StatelessWidget {
         textAlign: TextAlign.center,
         style: GoogleFonts.inter(
           color: participant.isCurrentUser
-              ? Colors.white
-              : _ExpenseDetailsPalette.textPrimary,
+              ? context.sharedColors.white
+              : context.expenseDetailsColors.textPrimary,
           fontSize: 9,
           fontWeight: FontWeight.w700,
           height: 1.4,
@@ -620,10 +637,10 @@ class _SplitMethodStrip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: _ExpenseDetailsPalette.segmentFill,
+        color: context.expenseDetailsColors.segmentFill,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: _ExpenseDetailsPalette.borderSoft.withValues(alpha: 0.3),
+          color: context.expenseDetailsColors.borderSoft.withValues(alpha: 0.3),
         ),
       ),
       child: SingleChildScrollView(
@@ -641,13 +658,13 @@ class _SplitMethodStrip extends StatelessWidget {
                     ),
                     decoration: BoxDecoration(
                       color: selected
-                          ? _ExpenseDetailsPalette.orange
-                          : Colors.transparent,
+                          ? context.expenseDetailsColors.orange
+                          : context.sharedColors.transparent,
                       borderRadius: BorderRadius.circular(4),
                       boxShadow: selected
-                          ? const <BoxShadow>[
+                          ? <BoxShadow>[
                               BoxShadow(
-                                color: Color(0x0C000000),
+                                color: context.sharedColors.shadowSubtle,
                                 blurRadius: 2,
                                 offset: Offset(0, 1),
                               ),
@@ -658,8 +675,8 @@ class _SplitMethodStrip extends StatelessWidget {
                       entry.label,
                       style: GoogleFonts.jetBrainsMono(
                         color: selected
-                            ? Colors.white
-                            : _ExpenseDetailsPalette.textMuted,
+                            ? context.sharedColors.white
+                            : context.expenseDetailsColors.textMuted,
                         fontSize: 13,
                         fontWeight: FontWeight.w400,
                         height: 1.4,
@@ -692,7 +709,7 @@ class _ExpenseSectionTitle extends StatelessWidget {
     return Text(
       title,
       style: GoogleFonts.jetBrainsMono(
-        color: _ExpenseDetailsPalette.textMuted,
+        color: context.expenseDetailsColors.textMuted,
         fontSize: 11,
         fontWeight: FontWeight.w700,
         height: 1.45,
@@ -717,18 +734,18 @@ class _SplitManifestCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final bool highlightCurrentUser = row.participant.isCurrentUser;
     final Color borderColor = highlightCurrentUser
-        ? _ExpenseDetailsPalette.orange.withValues(alpha: 0.45)
-        : _ExpenseDetailsPalette.borderSoft.withValues(alpha: 0.35);
+        ? context.expenseDetailsColors.orange.withValues(alpha: 0.45)
+        : context.expenseDetailsColors.borderSoft.withValues(alpha: 0.35);
 
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.sharedColors.white,
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: borderColor),
-        boxShadow: const <BoxShadow>[
+        boxShadow: <BoxShadow>[
           BoxShadow(
-            color: Color(0x0C000000),
+            color: context.sharedColors.shadowSubtle,
             blurRadius: 2,
             offset: Offset(0, 1),
           ),
@@ -746,7 +763,7 @@ class _SplitManifestCard extends StatelessWidget {
                 'PORTION',
                 textAlign: compact ? TextAlign.left : TextAlign.right,
                 style: GoogleFonts.jetBrainsMono(
-                  color: _ExpenseDetailsPalette.textMuted,
+                  color: context.expenseDetailsColors.textMuted,
                   fontSize: 9,
                   fontWeight: FontWeight.w400,
                   height: 1.5,
@@ -765,7 +782,7 @@ class _SplitManifestCard extends StatelessWidget {
                       ),
                       textAlign: TextAlign.right,
                       style: GoogleFonts.jetBrainsMono(
-                        color: _ExpenseDetailsPalette.textPrimary,
+                        color: context.expenseDetailsColors.textPrimary,
                         fontSize: 14,
                         fontWeight: FontWeight.w400,
                         height: 1.43,
@@ -778,7 +795,7 @@ class _SplitManifestCard extends StatelessWidget {
                       _formatSharePercentage(row.percentage),
                       textAlign: TextAlign.center,
                       style: GoogleFonts.jetBrainsMono(
-                        color: _ExpenseDetailsPalette.textMuted,
+                        color: context.expenseDetailsColors.textMuted,
                         fontSize: 12,
                         fontWeight: FontWeight.w400,
                         height: 1.33,
@@ -808,8 +825,8 @@ class _SplitManifestCard extends StatelessWidget {
                         _participantDisplayName(row.participant),
                         style: GoogleFonts.inter(
                           color: row.participant.isCurrentUser
-                              ? _ExpenseDetailsPalette.orangeText
-                              : _ExpenseDetailsPalette.textPrimary,
+                              ? context.expenseDetailsColors.orangeText
+                              : context.expenseDetailsColors.textPrimary,
                           fontSize: 16,
                           fontWeight: row.participant.isCurrentUser
                               ? FontWeight.w600
@@ -825,8 +842,8 @@ class _SplitManifestCard extends StatelessWidget {
                         ),
                         style: GoogleFonts.jetBrainsMono(
                           color: row.isPayer
-                              ? _ExpenseDetailsPalette.orange
-                              : _ExpenseDetailsPalette.textMuted,
+                              ? context.expenseDetailsColors.orange
+                              : context.expenseDetailsColors.textMuted,
                           fontSize: 9,
                           fontWeight: FontWeight.w400,
                           height: 1.5,
@@ -887,10 +904,12 @@ class _ManifestAvatar extends StatelessWidget {
             height: 40,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: _participantAvatarColor(participant, colorIndex),
+              color: _participantAvatarColor(context, participant, colorIndex),
               shape: BoxShape.circle,
               border: Border.all(
-                color: _ExpenseDetailsPalette.borderSoft.withValues(alpha: 0.2),
+                color: context.expenseDetailsColors.borderSoft.withValues(
+                  alpha: 0.2,
+                ),
               ),
             ),
             child: Text(
@@ -898,8 +917,8 @@ class _ManifestAvatar extends StatelessWidget {
               textAlign: TextAlign.center,
               style: GoogleFonts.inter(
                 color: participant.isCurrentUser
-                    ? Colors.white
-                    : _ExpenseDetailsPalette.textPrimary,
+                    ? context.sharedColors.white
+                    : context.expenseDetailsColors.textPrimary,
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
                 height: 1.4,
@@ -914,9 +933,12 @@ class _ManifestAvatar extends StatelessWidget {
                 width: 14,
                 height: 14,
                 decoration: BoxDecoration(
-                  color: _ExpenseDetailsPalette.orange,
+                  color: context.expenseDetailsColors.orange,
                   shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white, width: 2),
+                  border: Border.all(
+                    color: context.sharedColors.white,
+                    width: 2,
+                  ),
                 ),
               ),
             ),
@@ -937,7 +959,7 @@ class _PortionPill extends StatelessWidget {
       constraints: const BoxConstraints(minWidth: 52),
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       decoration: BoxDecoration(
-        color: _ExpenseDetailsPalette.portionFill,
+        color: context.expenseDetailsColors.portionFill,
         borderRadius: BorderRadius.circular(4),
       ),
       child: child,
@@ -955,18 +977,18 @@ class _ExpenseSummaryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final bool balanced = splitDetails.remaining.abs() < 0.01;
     final Color remainingColor = balanced
-        ? _ExpenseDetailsPalette.green
-        : _ExpenseDetailsPalette.red;
+        ? context.expenseDetailsColors.green
+        : context.expenseDetailsColors.red;
 
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.sharedColors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: _ExpenseDetailsPalette.border),
-        boxShadow: const <BoxShadow>[
+        border: Border.all(color: context.expenseDetailsColors.border),
+        boxShadow: <BoxShadow>[
           BoxShadow(
-            color: Color(0x0C000000),
+            color: context.sharedColors.shadowSubtle,
             blurRadius: 2,
             offset: Offset(0, 1),
           ),
@@ -1005,7 +1027,9 @@ class _ExpenseSummaryCard extends StatelessWidget {
           const SizedBox(height: 16),
           Divider(
             height: 1,
-            color: _ExpenseDetailsPalette.borderSoft.withValues(alpha: 0.4),
+            color: context.expenseDetailsColors.borderSoft.withValues(
+              alpha: 0.4,
+            ),
           ),
           const SizedBox(height: 16),
           Center(
@@ -1018,16 +1042,16 @@ class _ExpenseSummaryCard extends StatelessWidget {
                       : Icons.error_outline_rounded,
                   size: 18,
                   color: balanced
-                      ? _ExpenseDetailsPalette.green
-                      : _ExpenseDetailsPalette.red,
+                      ? context.expenseDetailsColors.green
+                      : context.expenseDetailsColors.red,
                 ),
                 const SizedBox(width: 8),
                 Text(
                   balanced ? 'BALANCED SPLIT' : 'UNBALANCED SPLIT',
                   style: GoogleFonts.jetBrainsMono(
                     color: balanced
-                        ? _ExpenseDetailsPalette.green
-                        : _ExpenseDetailsPalette.red,
+                        ? context.expenseDetailsColors.green
+                        : context.expenseDetailsColors.red,
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                     height: 1.5,
@@ -1047,12 +1071,12 @@ class _SummaryMetricRow extends StatelessWidget {
   const _SummaryMetricRow({
     required this.label,
     required this.value,
-    this.valueColor = _ExpenseDetailsPalette.textPrimary,
+    this.valueColor,
   });
 
   final String label;
   final String value;
-  final Color valueColor;
+  final Color? valueColor;
 
   @override
   Widget build(BuildContext context) {
@@ -1062,7 +1086,7 @@ class _SummaryMetricRow extends StatelessWidget {
         Text(
           label,
           style: GoogleFonts.jetBrainsMono(
-            color: _ExpenseDetailsPalette.textMuted,
+            color: context.expenseDetailsColors.textMuted,
             fontSize: 10,
             fontWeight: FontWeight.w400,
             height: 1.5,
@@ -1076,7 +1100,7 @@ class _SummaryMetricRow extends StatelessWidget {
           child: Text(
             value,
             style: GoogleFonts.jetBrainsMono(
-              color: valueColor,
+              color: valueColor ?? context.expenseDetailsColors.textPrimary,
               fontSize: 16,
               fontWeight: FontWeight.w400,
               height: 1.5,
@@ -1108,12 +1132,12 @@ class _SummaryDashedLine extends StatelessWidget {
                 padding: EdgeInsets.only(
                   right: index == dashCount - 1 ? 0 : gapWidth,
                 ),
-                child: const SizedBox(
+                child: SizedBox(
                   width: dashWidth,
                   height: 1,
                   child: DecoratedBox(
                     decoration: BoxDecoration(
-                      color: _ExpenseDetailsPalette.borderSoft,
+                      color: context.expenseDetailsColors.borderSoft,
                     ),
                   ),
                 ),
@@ -1138,23 +1162,23 @@ class _ApplySplitButton extends StatelessWidget {
       child: ElevatedButton.icon(
         key: const ValueKey<String>('expense_details_apply_split_button'),
         onPressed: onPressed,
-        icon: const Icon(
+        icon: Icon(
           Icons.fact_check_outlined,
-          color: Colors.white,
+          color: context.sharedColors.white,
           size: 18,
         ),
         label: Text(
           'Apply Split',
           style: GoogleFonts.geist(
-            color: Colors.white,
+            color: context.sharedColors.white,
             fontSize: 16,
             fontWeight: FontWeight.w500,
             height: 1.5,
           ),
         ),
         style: ElevatedButton.styleFrom(
-          backgroundColor: _ExpenseDetailsPalette.orange,
-          foregroundColor: Colors.white,
+          backgroundColor: context.expenseDetailsColors.orange,
+          foregroundColor: context.sharedColors.white,
           elevation: 0,
           padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(
@@ -1174,11 +1198,14 @@ class _SoftDivider extends StatelessWidget {
     return Container(
       width: double.infinity,
       height: 1,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
-          colors: <Color>[Color(0x66A58C7F), Color(0x00A58C7F)],
+          colors: <Color>[
+            context.sharedColors.fadeGradientStart,
+            context.sharedColors.fadeGradientEnd,
+          ],
         ),
       ),
     );
@@ -1207,12 +1234,12 @@ class _DashedSeparator extends StatelessWidget {
                 padding: EdgeInsets.only(
                   right: index == dashCount - 1 ? 0 : gapWidth,
                 ),
-                child: const SizedBox(
+                child: SizedBox(
                   width: dashWidth,
                   height: thickness,
                   child: DecoratedBox(
                     decoration: BoxDecoration(
-                      color: _ExpenseDetailsPalette.borderSoft,
+                      color: context.expenseDetailsColors.borderSoft,
                     ),
                   ),
                 ),
@@ -1460,34 +1487,22 @@ String _formatSharePercentage(double percentage) {
   return '${rounded.toStringAsFixed(1)}%';
 }
 
-Color _participantAvatarColor(TripParticipant participant, int colorIndex) {
+Color _participantAvatarColor(
+  BuildContext context,
+  TripParticipant participant,
+  int colorIndex,
+) {
   if (participant.isCurrentUser) {
-    return _ExpenseDetailsPalette.currentUserAvatar;
+    return context.expenseDetailsColors.currentUserAvatar;
   }
 
-  const List<Color> palette = <Color>[
-    Color(0xFFDCE2F8),
-    Color(0xFFFFDBC9),
-    Color(0xFF6DFE9C),
-    Color(0xFFE2E3DF),
-    Color(0xFFE3D9F4),
+  final List<Color> palette = <Color>[
+    context.sharedColors.participantAvatarBlue,
+    context.sharedColors.participantAvatarWarm,
+    context.sharedColors.participantAvatarGreen,
+    context.sharedColors.participantAvatarNeutral,
+    context.sharedColors.participantAvatarLilac,
   ];
 
   return palette[colorIndex % palette.length];
-}
-
-class _ExpenseDetailsPalette {
-  static const Color background = Color(0xFFF8F6F1);
-  static const Color segmentFill = Color(0xFFEEEEEC);
-  static const Color portionFill = Color(0xFFF0F1ED);
-  static const Color border = Color(0xFFD5C3B9);
-  static const Color borderSoft = Color(0xFFA58C7F);
-  static const Color textPrimary = Color(0xFF151B2B);
-  static const Color textMuted = Color(0xFF564338);
-  static const Color orange = Color(0xFFFF8A3D);
-  static const Color orangeText = Color(0xFF682D00);
-  static const Color saveText = Color(0xFF9A4600);
-  static const Color green = Color(0xFF006D36);
-  static const Color red = Color(0xFFBA1A1A);
-  static const Color currentUserAvatar = Color(0xFFFFC9AE);
 }

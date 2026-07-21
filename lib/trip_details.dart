@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 
+import 'app_colors.dart';
 import 'app_routes.dart';
 import 'create_expense.dart';
 import 'expense_details.dart';
+import 'final_settle_up.dart';
 import 'trip_store.dart';
 import 'tripsplit_bottom_nav.dart';
 
@@ -78,6 +80,23 @@ void _openProfileFromTripDetails(BuildContext context) {
   Navigator.of(context).pushNamed(TripSplitRoutes.profile);
 }
 
+void _openFinalSettleUp(BuildContext context, String tripId) {
+  FocusManager.instance.primaryFocus?.unfocus();
+
+  Navigator.of(context).push(
+    MaterialPageRoute<void>(
+      settings: const RouteSettings(name: 'final_settle_up'),
+      builder: (BuildContext context) => FinalSettleUpScreen(tripId: tripId),
+    ),
+  );
+}
+
+extension _TripDetailsThemeAccess on BuildContext {
+  AppColors get _appColors => Theme.of(this).extension<AppColors>()!;
+  TripDetailsColorTokens get tripDetailsColors => _appColors.tripDetails;
+  SharedColorTokens get sharedColors => _appColors.shared;
+}
+
 class TripDetailsScreen extends StatelessWidget {
   const TripDetailsScreen({super.key, required this.tripId});
 
@@ -91,7 +110,7 @@ class TripDetailsScreen extends StatelessWidget {
 
     if (trip == null) {
       return Scaffold(
-        backgroundColor: _TripDetailsPalette.background,
+        backgroundColor: context.tripDetailsColors.background,
         body: SafeArea(
           child: Center(
             child: Padding(
@@ -100,7 +119,7 @@ class TripDetailsScreen extends StatelessWidget {
                 'This trip could not be found.',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.geist(
-                  color: _TripDetailsPalette.textPrimary,
+                  color: context.tripDetailsColors.textPrimary,
                   fontSize: 22,
                   fontWeight: FontWeight.w600,
                   height: 1.2,
@@ -114,14 +133,14 @@ class TripDetailsScreen extends StatelessWidget {
 
     return Scaffold(
       key: const ValueKey<String>('trip_details_screen'),
-      backgroundColor: _TripDetailsPalette.background,
+      backgroundColor: context.tripDetailsColors.background,
       bottomNavigationBar: TripSplitBottomNav(
         activeTab: TripSplitBottomNavTab.trips,
-        backgroundColor: _TripDetailsPalette.background,
-        separatorColor: _TripDetailsPalette.borderSoft,
-        activeFillColor: _TripDetailsPalette.orange,
-        activeTextColor: _TripDetailsPalette.orangeText,
-        inactiveTextColor: _TripDetailsPalette.textSecondary,
+        backgroundColor: context.tripDetailsColors.background,
+        separatorColor: context.tripDetailsColors.borderSoft,
+        activeFillColor: context.tripDetailsColors.orange,
+        activeTextColor: context.tripDetailsColors.orangeText,
+        inactiveTextColor: context.tripDetailsColors.textSecondary,
         onCalculatorTap: () => _openCalculatorFromTripDetails(context),
         onProfileTap: () => _openProfileFromTripDetails(context),
       ),
@@ -193,7 +212,7 @@ class _TripDetailsHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: _TripDetailsPalette.background,
+      color: context.tripDetailsColors.background,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
@@ -203,9 +222,9 @@ class _TripDetailsHeader extends StatelessWidget {
               children: <Widget>[
                 IconButton(
                   onPressed: () => Navigator.of(context).maybePop(),
-                  icon: const Icon(
+                  icon: Icon(
                     Icons.arrow_back_rounded,
-                    color: _TripDetailsPalette.orange,
+                    color: context.tripDetailsColors.orange,
                   ),
                 ),
                 Expanded(
@@ -213,7 +232,7 @@ class _TripDetailsHeader extends StatelessWidget {
                     'TRIPSPLIT',
                     textAlign: TextAlign.center,
                     style: GoogleFonts.geist(
-                      color: _TripDetailsPalette.orange,
+                      color: context.tripDetailsColors.orange,
                       fontSize: 24,
                       fontWeight: FontWeight.w700,
                       height: 1.2,
@@ -262,7 +281,11 @@ class _HeaderIconButton extends StatelessWidget {
         padding: EdgeInsets.zero,
         constraints: const BoxConstraints.tightFor(width: 32, height: 32),
         splashRadius: 18,
-        icon: Icon(icon, size: 18, color: _TripDetailsPalette.textPrimary),
+        icon: Icon(
+          icon,
+          size: 18,
+          color: context.tripDetailsColors.textPrimary,
+        ),
       ),
     );
   }
@@ -284,10 +307,10 @@ class _NotificationButton extends StatelessWidget {
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints.tightFor(width: 32, height: 32),
             splashRadius: 18,
-            icon: const Icon(
+            icon: Icon(
               Icons.notifications_none_rounded,
               size: 18,
-              color: _TripDetailsPalette.textPrimary,
+              color: context.tripDetailsColors.textPrimary,
             ),
           ),
           Positioned(
@@ -296,8 +319,8 @@ class _NotificationButton extends StatelessWidget {
             child: Container(
               width: 8,
               height: 8,
-              decoration: const BoxDecoration(
-                color: _TripDetailsPalette.orange,
+              decoration: BoxDecoration(
+                color: context.tripDetailsColors.orange,
                 shape: BoxShape.circle,
               ),
             ),
@@ -318,20 +341,27 @@ class _HeaderAvatar extends StatelessWidget {
       height: 32,
       padding: const EdgeInsets.all(2),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.sharedColors.cardBackground,
         shape: BoxShape.circle,
-        border: Border.all(color: _TripDetailsPalette.borderSoft),
+        border: Border.all(color: context.tripDetailsColors.borderSoft),
       ),
       child: DecoratedBox(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           shape: BoxShape.circle,
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: <Color>[Color(0xFFF6D4C0), Color(0xFFB77C5C)],
+            colors: <Color>[
+              context.sharedColors.avatarGradientTop,
+              context.sharedColors.avatarGradientBottom,
+            ],
           ),
         ),
-        child: const Icon(Icons.person_rounded, size: 16, color: Colors.white),
+        child: Icon(
+          Icons.person_rounded,
+          size: 16,
+          color: context.sharedColors.white,
+        ),
       ),
     );
   }
@@ -345,20 +375,20 @@ class _TripOverviewCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Color balanceColor = trip.yourBalance >= 0
-        ? _TripDetailsPalette.green
-        : _TripDetailsPalette.red;
+        ? context.tripDetailsColors.green
+        : context.tripDetailsColors.red;
 
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.sharedColors.cardBackground,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: _TripDetailsPalette.border),
-        boxShadow: const <BoxShadow>[
+        border: Border.all(color: context.tripDetailsColors.border),
+        boxShadow: <BoxShadow>[
           BoxShadow(
-            color: Color(0x0C000000),
+            color: context.sharedColors.shadowSubtle,
             blurRadius: 2,
-            offset: Offset(0, 1),
+            offset: const Offset(0, 1),
           ),
         ],
       ),
@@ -372,7 +402,7 @@ class _TripOverviewCard extends StatelessWidget {
                 child: Text(
                   trip.title,
                   style: GoogleFonts.geist(
-                    color: _TripDetailsPalette.textPrimary,
+                    color: context.tripDetailsColors.textPrimary,
                     fontSize: 22,
                     fontWeight: FontWeight.w700,
                     height: 1.15,
@@ -387,7 +417,7 @@ class _TripOverviewCard extends StatelessWidget {
           Text(
             trip.dateRangeLabel,
             style: GoogleFonts.inter(
-              color: _TripDetailsPalette.textMuted,
+              color: context.tripDetailsColors.textMuted,
               fontSize: 14,
               fontWeight: FontWeight.w400,
               height: 1.43,
@@ -454,12 +484,12 @@ class _MetricColumn extends StatelessWidget {
   const _MetricColumn({
     required this.label,
     required this.value,
-    this.valueColor = _TripDetailsPalette.textPrimary,
+    this.valueColor,
   });
 
   final String label;
   final String value;
-  final Color valueColor;
+  final Color? valueColor;
 
   @override
   Widget build(BuildContext context) {
@@ -469,7 +499,7 @@ class _MetricColumn extends StatelessWidget {
         Text(
           label,
           style: GoogleFonts.jetBrainsMono(
-            color: _TripDetailsPalette.textMuted,
+            color: context.tripDetailsColors.textMuted,
             fontSize: 10,
             fontWeight: FontWeight.w700,
             height: 1.5,
@@ -483,7 +513,7 @@ class _MetricColumn extends StatelessWidget {
           child: Text(
             value,
             style: GoogleFonts.jetBrainsMono(
-              color: valueColor,
+              color: valueColor ?? context.tripDetailsColors.textPrimary,
               fontSize: 18,
               fontWeight: FontWeight.w600,
               height: 1.2,
@@ -525,10 +555,14 @@ class _ParticipantTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color avatarBackground = _avatarBackground(participant, colorIndex);
+    final Color avatarBackground = _avatarBackground(
+      context,
+      participant,
+      colorIndex,
+    );
     final Color avatarTextColor = participant.isCurrentUser
-        ? Colors.white
-        : _TripDetailsPalette.textPrimary;
+        ? context.sharedColors.white
+        : context.tripDetailsColors.textPrimary;
 
     return Container(
       constraints: BoxConstraints(
@@ -537,11 +571,11 @@ class _ParticipantTile extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       decoration: BoxDecoration(
         color: participant.isCurrentUser
-            ? Colors.white
-            : _TripDetailsPalette.participantFill,
+            ? context.sharedColors.cardBackground
+            : context.tripDetailsColors.participantFill,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: _TripDetailsPalette.borderSoft.withValues(alpha: 0.45),
+          color: context.tripDetailsColors.borderSoft.withValues(alpha: 0.45),
         ),
       ),
       child: Row(
@@ -573,7 +607,7 @@ class _ParticipantTile extends StatelessWidget {
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               style: GoogleFonts.jetBrainsMono(
-                color: _TripDetailsPalette.textPrimary,
+                color: context.tripDetailsColors.textPrimary,
                 fontSize: 10,
                 fontWeight: FontWeight.w700,
                 height: 1.35,
@@ -601,7 +635,7 @@ class _SectionHeader extends StatelessWidget {
           child: Text(
             title,
             style: GoogleFonts.jetBrainsMono(
-              color: _TripDetailsPalette.textMuted,
+              color: context.tripDetailsColors.textMuted,
               fontSize: 11,
               fontWeight: FontWeight.w700,
               height: 1.45,
@@ -609,16 +643,16 @@ class _SectionHeader extends StatelessWidget {
             ),
           ),
         ),
-        const Icon(
+        Icon(
           Icons.filter_list_rounded,
           size: 14,
-          color: _TripDetailsPalette.orange,
+          color: context.tripDetailsColors.orange,
         ),
         const SizedBox(width: 4),
         Text(
           actionLabel,
           style: GoogleFonts.jetBrainsMono(
-            color: _TripDetailsPalette.orange,
+            color: context.tripDetailsColors.orange,
             fontSize: 11,
             fontWeight: FontWeight.w700,
             height: 1.45,
@@ -642,19 +676,19 @@ class _ExpenseCard extends StatelessWidget {
       key: ValueKey<String>('trip_expense_${expense.referenceCode}'),
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.sharedColors.cardBackground,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: _TripDetailsPalette.borderSoft),
-        boxShadow: const <BoxShadow>[
+        border: Border.all(color: context.tripDetailsColors.borderSoft),
+        boxShadow: <BoxShadow>[
           BoxShadow(
-            color: Color(0x0C000000),
+            color: context.sharedColors.shadowSubtle,
             blurRadius: 2,
-            offset: Offset(0, 1),
+            offset: const Offset(0, 1),
           ),
         ],
       ),
       child: Material(
-        color: Colors.transparent,
+        color: context.sharedColors.transparent,
         child: InkWell(
           onTap: () => _openExpenseDetails(
             context,
@@ -663,9 +697,12 @@ class _ExpenseCard extends StatelessWidget {
           ),
           child: Container(
             padding: const EdgeInsets.fromLTRB(18, 14, 14, 14),
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               border: Border(
-                left: BorderSide(color: _TripDetailsPalette.orange, width: 4),
+                left: BorderSide(
+                  color: context.tripDetailsColors.orange,
+                  width: 4,
+                ),
               ),
             ),
             child: LayoutBuilder(
@@ -678,7 +715,7 @@ class _ExpenseCard extends StatelessWidget {
                     Text(
                       'PAID BY ${expense.paidBy.name.toUpperCase()}',
                       style: GoogleFonts.jetBrainsMono(
-                        color: _TripDetailsPalette.textMuted,
+                        color: context.tripDetailsColors.textMuted,
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
                         height: 1.45,
@@ -688,8 +725,8 @@ class _ExpenseCard extends StatelessWidget {
                     Container(
                       width: 4,
                       height: 4,
-                      decoration: const BoxDecoration(
-                        color: _TripDetailsPalette.borderSoft,
+                      decoration: BoxDecoration(
+                        color: context.tripDetailsColors.borderSoft,
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -709,7 +746,7 @@ class _ExpenseCard extends StatelessWidget {
                   ),
                   textAlign: TextAlign.right,
                   style: GoogleFonts.jetBrainsMono(
-                    color: _TripDetailsPalette.textPrimary,
+                    color: context.tripDetailsColors.textPrimary,
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
                     height: 1.2,
@@ -727,7 +764,7 @@ class _ExpenseCard extends StatelessWidget {
                             child: Text(
                               expense.title,
                               style: GoogleFonts.inter(
-                                color: _TripDetailsPalette.textPrimary,
+                                color: context.tripDetailsColors.textPrimary,
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
                                 height: 1.5,
@@ -756,7 +793,7 @@ class _ExpenseCard extends StatelessWidget {
                           Text(
                             expense.title,
                             style: GoogleFonts.inter(
-                              color: _TripDetailsPalette.textPrimary,
+                              color: context.tripDetailsColors.textPrimary,
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
                               height: 1.5,
@@ -797,13 +834,13 @@ class _SplitBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: _TripDetailsPalette.splitFill,
+        color: context.tripDetailsColors.splitFill,
         borderRadius: BorderRadius.circular(4),
       ),
       child: Text(
         _splitTypeLabel(splitType),
         style: GoogleFonts.jetBrainsMono(
-          color: _TripDetailsPalette.textPrimary,
+          color: context.tripDetailsColors.textPrimary,
           fontSize: 10,
           fontWeight: FontWeight.w700,
           height: 1.3,
@@ -824,16 +861,16 @@ class _ExpenseReferenceTag extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
-        const Icon(
+        Icon(
           Icons.receipt_long_outlined,
           size: 13,
-          color: _TripDetailsPalette.textMuted,
+          color: context.tripDetailsColors.textMuted,
         ),
         const SizedBox(width: 4),
         Text(
           referenceCode,
           style: GoogleFonts.jetBrainsMono(
-            color: _TripDetailsPalette.textMuted,
+            color: context.tripDetailsColors.textMuted,
             fontSize: 10,
             fontWeight: FontWeight.w400,
             height: 1.5,
@@ -854,9 +891,9 @@ class _EmptyLedgerCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.sharedColors.cardBackground,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: _TripDetailsPalette.borderSoft),
+        border: Border.all(color: context.tripDetailsColors.borderSoft),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -864,7 +901,7 @@ class _EmptyLedgerCard extends StatelessWidget {
           Text(
             'No expenses yet',
             style: GoogleFonts.geist(
-              color: _TripDetailsPalette.textPrimary,
+              color: context.tripDetailsColors.textPrimary,
               fontSize: 18,
               fontWeight: FontWeight.w600,
               height: 1.2,
@@ -874,7 +911,7 @@ class _EmptyLedgerCard extends StatelessWidget {
           Text(
             'Add the first expense for ${trip.title} to start splitting costs.',
             style: GoogleFonts.inter(
-              color: _TripDetailsPalette.textMuted,
+              color: context.tripDetailsColors.textMuted,
               fontSize: 14,
               fontWeight: FontWeight.w400,
               height: 1.43,
@@ -896,9 +933,9 @@ class _TripTotalCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
       decoration: BoxDecoration(
-        color: _TripDetailsPalette.summaryFill,
+        color: context.tripDetailsColors.summaryFill,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: _TripDetailsPalette.borderSoft),
+        border: Border.all(color: context.tripDetailsColors.borderSoft),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -906,7 +943,7 @@ class _TripTotalCard extends StatelessWidget {
           Text(
             'TOTAL TRIP COST',
             style: GoogleFonts.jetBrainsMono(
-              color: _TripDetailsPalette.textMuted,
+              color: context.tripDetailsColors.textMuted,
               fontSize: 11,
               fontWeight: FontWeight.w700,
               height: 1.45,
@@ -921,7 +958,7 @@ class _TripTotalCard extends StatelessWidget {
               currencySymbol: trip.currencySymbol,
             ),
             style: GoogleFonts.geist(
-              color: _TripDetailsPalette.orange,
+              color: context.tripDetailsColors.orange,
               fontSize: 38,
               fontWeight: FontWeight.w700,
               height: 1.05,
@@ -931,16 +968,11 @@ class _TripTotalCard extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Settlement tools are coming soon.'),
-                  ),
-                );
-              },
+              key: const ValueKey<String>('trip_details_settle_up_button'),
+              onPressed: () => _openFinalSettleUp(context, trip.id),
               style: ElevatedButton.styleFrom(
-                backgroundColor: _TripDetailsPalette.orange,
-                foregroundColor: Colors.white,
+                backgroundColor: context.tripDetailsColors.orange,
+                foregroundColor: context.sharedColors.white,
                 elevation: 0,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
@@ -950,7 +982,7 @@ class _TripTotalCard extends StatelessWidget {
               child: Text(
                 'Settle Up',
                 style: GoogleFonts.geist(
-                  color: Colors.white,
+                  color: context.sharedColors.white,
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
                   height: 1.5,
@@ -974,13 +1006,13 @@ class _StatusBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: status.detailBackgroundColor,
+        color: status.detailBackgroundColor(context),
         borderRadius: BorderRadius.circular(999),
       ),
       child: Text(
         status.detailLabel,
         style: GoogleFonts.jetBrainsMono(
-          color: status.detailTextColor,
+          color: status.detailTextColor(context),
           fontSize: 10,
           fontWeight: FontWeight.w700,
           height: 1.4,
@@ -1002,10 +1034,10 @@ class _AddExpenseButton extends StatelessWidget {
       key: const ValueKey<String>('trip_details_add_expense_button'),
       heroTag: 'trip_details_add_expense_button',
       tooltip: 'Add expense',
-      backgroundColor: _TripDetailsPalette.orange,
-      foregroundColor: Colors.white,
+      backgroundColor: context.tripDetailsColors.orange,
+      foregroundColor: context.sharedColors.white,
       elevation: 8,
-      splashColor: Colors.white.withValues(alpha: 0.12),
+      splashColor: context.sharedColors.overlayWhite12,
       onPressed: () => _openCreateExpense(context, tripId),
       child: const Icon(Icons.add_rounded, size: 30),
     );
@@ -1034,12 +1066,12 @@ class _DashedSeparator extends StatelessWidget {
                 padding: EdgeInsets.only(
                   right: index == dashCount - 1 ? 0 : gapWidth,
                 ),
-                child: const SizedBox(
+                child: SizedBox(
                   width: dashWidth,
                   height: thickness,
                   child: DecoratedBox(
                     decoration: BoxDecoration(
-                      color: _TripDetailsPalette.borderSoft,
+                      color: context.tripDetailsColors.borderSoft,
                     ),
                   ),
                 ),
@@ -1064,25 +1096,25 @@ extension _TripDetailsStatusStyle on TripStatus {
     }
   }
 
-  Color get detailBackgroundColor {
+  Color detailBackgroundColor(BuildContext context) {
     switch (this) {
       case TripStatus.inProgress:
-        return _TripDetailsPalette.orange;
+        return context.tripDetailsColors.orange;
       case TripStatus.upcoming:
-        return _TripDetailsPalette.participantFill;
+        return context.tripDetailsColors.participantFill;
       case TripStatus.settled:
-        return _TripDetailsPalette.green;
+        return context.tripDetailsColors.green;
     }
   }
 
-  Color get detailTextColor {
+  Color detailTextColor(BuildContext context) {
     switch (this) {
       case TripStatus.inProgress:
-        return _TripDetailsPalette.orangeText;
+        return context.tripDetailsColors.orangeText;
       case TripStatus.upcoming:
-        return _TripDetailsPalette.textMuted;
+        return context.tripDetailsColors.textMuted;
       case TripStatus.settled:
-        return _TripDetailsPalette.greenText;
+        return context.tripDetailsColors.greenText;
     }
   }
 }
@@ -1121,34 +1153,21 @@ String _splitTypeLabel(ExpenseSplitType splitType) {
   }
 }
 
-Color _avatarBackground(TripParticipant participant, int colorIndex) {
+Color _avatarBackground(
+  BuildContext context,
+  TripParticipant participant,
+  int colorIndex,
+) {
   if (participant.isCurrentUser) {
-    return _TripDetailsPalette.orange;
+    return context.tripDetailsColors.orange;
   }
 
-  const List<Color> palette = <Color>[
-    Color(0xFFDCE2F8),
-    Color(0xFFE8E4DE),
-    Color(0xFFC9D0E4),
-    Color(0xFFD5E5D4),
+  final List<Color> palette = <Color>[
+    context.sharedColors.participantAvatarBlue,
+    context.sharedColors.participantAvatarSand,
+    context.sharedColors.participantAvatarSlate,
+    context.sharedColors.participantAvatarGreen,
   ];
 
   return palette[colorIndex % palette.length];
-}
-
-class _TripDetailsPalette {
-  static const Color background = Color(0xFFFDFAF6);
-  static const Color summaryFill = Color(0xFFF4F1EC);
-  static const Color participantFill = Color(0xFFE8E4DE);
-  static const Color splitFill = Color(0xFFE0E2EC);
-  static const Color border = Color(0xFF564338);
-  static const Color borderSoft = Color(0xFFA58C7F);
-  static const Color textPrimary = Color(0xFF151B2B);
-  static const Color textSecondary = Color(0xFF404758);
-  static const Color textMuted = Color(0xFF564338);
-  static const Color orange = Color(0xFFFF8A3D);
-  static const Color orangeText = Color(0xFF682D00);
-  static const Color green = Color(0xFF22C268);
-  static const Color greenText = Color(0xFF004922);
-  static const Color red = Color(0xFFBA1A1A);
 }
