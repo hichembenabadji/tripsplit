@@ -240,6 +240,7 @@ class _ProfileAvatar extends StatelessWidget {
       ),
       child: TripSplitUserAvatar(
         imageBytes: currentUser.profileImageBytes,
+        imageUrl: currentUser.profileImageUrl,
         size: 40,
         padding: 2,
         iconSize: 20,

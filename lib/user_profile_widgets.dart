@@ -10,6 +10,7 @@ class TripSplitUserAvatar extends StatelessWidget {
   const TripSplitUserAvatar({
     super.key,
     this.imageBytes,
+    this.imageUrl,
     required this.size,
     this.borderColor,
     this.borderWidth = 0,
@@ -18,6 +19,7 @@ class TripSplitUserAvatar extends StatelessWidget {
   });
 
   final Uint8List? imageBytes;
+  final String? imageUrl;
   final double size;
   final Color? borderColor;
   final double borderWidth;
@@ -44,29 +46,56 @@ class TripSplitUserAvatar extends StatelessWidget {
             : null,
       ),
       child: ClipOval(
-        child: imageBytes == null
-            ? DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: <Color>[
-                      shared.avatarGradientTop,
-                      shared.avatarGradientBottom,
-                    ],
-                  ),
-                ),
-                child: Icon(
-                  Icons.person_rounded,
-                  size: iconSize ?? size * 0.48,
-                  color: shared.white,
-                ),
-              )
-            : Image.memory(
+        child: imageBytes != null
+            ? Image.memory(
                 imageBytes!,
                 fit: BoxFit.cover,
                 gaplessPlayback: true,
-              ),
+              )
+            : imageUrl != null && imageUrl!.isNotEmpty
+            ? Image.network(
+                imageUrl!,
+                fit: BoxFit.cover,
+                errorBuilder:
+                    (
+                      BuildContext context,
+                      Object error,
+                      StackTrace? stackTrace,
+                    ) => _AvatarPlaceholder(size: size, iconSize: iconSize),
+              )
+            : _AvatarPlaceholder(size: size, iconSize: iconSize),
+      ),
+    );
+  }
+}
+
+class _AvatarPlaceholder extends StatelessWidget {
+  const _AvatarPlaceholder({required this.size, this.iconSize});
+
+  final double size;
+  final double? iconSize;
+
+  @override
+  Widget build(BuildContext context) {
+    final SharedColorTokens shared = Theme.of(
+      context,
+    ).extension<AppColors>()!.shared;
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: <Color>[
+            shared.avatarGradientTop,
+            shared.avatarGradientBottom,
+          ],
+        ),
+      ),
+      child: Icon(
+        Icons.person_rounded,
+        size: iconSize ?? size * 0.48,
+        color: shared.white,
       ),
     );
   }
@@ -78,6 +107,7 @@ class TripSplitProfilePhotoField extends StatelessWidget {
     required this.label,
     required this.description,
     required this.imageBytes,
+    this.imageUrl,
     required this.onPickImage,
     this.onRemoveImage,
     this.isBusy = false,
@@ -86,13 +116,16 @@ class TripSplitProfilePhotoField extends StatelessWidget {
   final String label;
   final String description;
   final Uint8List? imageBytes;
+  final String? imageUrl;
   final VoidCallback onPickImage;
   final VoidCallback? onRemoveImage;
   final bool isBusy;
 
   @override
   Widget build(BuildContext context) {
-    final bool hasImage = imageBytes != null;
+    final bool hasImage =
+        imageBytes != null || (imageUrl != null && imageUrl!.isNotEmpty);
+    final bool hasLocalImage = imageBytes != null;
     final AppColors appColors = Theme.of(context).extension<AppColors>()!;
     final AuthColorTokens colors = appColors.auth;
 
@@ -109,6 +142,7 @@ class TripSplitProfilePhotoField extends StatelessWidget {
               children: <Widget>[
                 TripSplitUserAvatar(
                   imageBytes: imageBytes,
+                  imageUrl: imageUrl,
                   size: 64,
                   borderColor: colors.cardBorder,
                   borderWidth: 1,
@@ -167,7 +201,7 @@ class TripSplitProfilePhotoField extends StatelessWidget {
                               ),
                             ),
                           ),
-                          if (hasImage && onRemoveImage != null)
+                          if (hasLocalImage && onRemoveImage != null)
                             TextButton(
                               onPressed: isBusy ? null : onRemoveImage,
                               style: TextButton.styleFrom(

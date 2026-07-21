@@ -4,6 +4,8 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import 'auth_service.dart';
+
 final DateTime kTripSplitToday = DateTime(2026, 7, 16);
 
 enum TripStatus { inProgress, upcoming, settled }
@@ -68,6 +70,7 @@ class AppUserProfile {
     required this.email,
     this.password,
     this.profileImageBytes,
+    this.profileImageUrl,
     required this.memberSince,
   });
 
@@ -76,6 +79,7 @@ class AppUserProfile {
   final String email;
   final String? password;
   final Uint8List? profileImageBytes;
+  final String? profileImageUrl;
   final DateTime memberSince;
 
   String get displayName {
@@ -109,6 +113,8 @@ class AppUserProfile {
     bool clearPassword = false,
     Uint8List? profileImageBytes,
     bool clearProfileImage = false,
+    String? profileImageUrl,
+    bool clearProfileImageUrl = false,
     DateTime? memberSince,
   }) {
     return AppUserProfile(
@@ -122,6 +128,9 @@ class AppUserProfile {
                 (this.profileImageBytes == null
                     ? null
                     : Uint8List.fromList(this.profileImageBytes!))),
+      profileImageUrl: clearProfileImageUrl
+          ? null
+          : (profileImageUrl ?? this.profileImageUrl),
       memberSince: memberSince ?? this.memberSince,
     );
   }
@@ -410,6 +419,29 @@ class TripStore extends ChangeNotifier {
     notifyListeners();
   }
 
+  void syncCurrentUserFromAuth(AppAuthUser user) {
+    final _ResolvedUserName resolvedName = _resolveUserName(
+      displayName: user.displayName,
+      email: user.email,
+    );
+
+    _currentUser = _currentUser.copyWith(
+      firstName: resolvedName.firstName,
+      lastName: resolvedName.lastName,
+      clearLastName: resolvedName.lastName == null,
+      email: user.email,
+      clearPassword: true,
+      profileImageUrl: user.photoUrl,
+      memberSince: user.creationTime ?? _currentUser.memberSince,
+    );
+    notifyListeners();
+  }
+
+  void resetCurrentUserFromAuth() {
+    _currentUser = AppUserProfile.seed();
+    notifyListeners();
+  }
+
   TripStatus _deriveStatus(DateTime? departureDate, DateTime? returnDate) {
     if (departureDate == null && returnDate == null) {
       return TripStatus.upcoming;
@@ -657,4 +689,60 @@ class TripStoreScope extends InheritedNotifier<TripStore> {
     assert(scope != null, 'No TripStoreScope found in context');
     return scope!.notifier!;
   }
+}
+
+class _ResolvedUserName {
+  const _ResolvedUserName({required this.firstName, this.lastName});
+
+  final String firstName;
+  final String? lastName;
+}
+
+_ResolvedUserName _resolveUserName({
+  required String? displayName,
+  required String email,
+}) {
+  final List<String> tokens = (displayName ?? '')
+      .trim()
+      .split(RegExp(r'\s+'))
+      .where((String token) => token.isNotEmpty)
+      .toList(growable: false);
+
+  if (tokens.isNotEmpty) {
+    final String firstName = tokens.first;
+    final String? lastName = tokens.length > 1
+        ? tokens.sublist(1).join(' ')
+        : null;
+    return _ResolvedUserName(firstName: firstName, lastName: lastName);
+  }
+
+  final String localPart = email.split('@').first.trim();
+  if (localPart.isEmpty) {
+    return const _ResolvedUserName(firstName: 'Traveler');
+  }
+
+  final List<String> localTokens = localPart
+      .split(RegExp(r'[._-]+'))
+      .where((String token) => token.isNotEmpty)
+      .map(_capitalizeToken)
+      .toList(growable: false);
+
+  if (localTokens.isEmpty) {
+    return const _ResolvedUserName(firstName: 'Traveler');
+  }
+
+  final String firstName = localTokens.first;
+  final String? lastName = localTokens.length > 1
+      ? localTokens.sublist(1).join(' ')
+      : null;
+
+  return _ResolvedUserName(firstName: firstName, lastName: lastName);
+}
+
+String _capitalizeToken(String value) {
+  if (value.isEmpty) {
+    return value;
+  }
+
+  return '${value[0].toUpperCase()}${value.substring(1).toLowerCase()}';
 }

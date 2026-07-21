@@ -209,6 +209,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             description:
                 'Add a profile picture now, or swap it out whenever you need to.',
             imageBytes: _profileImageBytes,
+            imageUrl: TripStoreScope.of(context).currentUser.profileImageUrl,
             isBusy: _isPickingPhoto,
             onPickImage: _pickProfileImage,
             onRemoveImage: _profileImageBytes == null

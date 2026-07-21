@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 
+import 'app_auth_controller.dart';
 import 'app_colors.dart';
 import 'app_routes.dart';
 import 'app_theme_controller.dart';
+import 'auth_service.dart';
 import 'trip_store.dart';
 import 'tripsplit_bottom_nav.dart';
 import 'user_profile_widgets.dart';
@@ -49,13 +51,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
     ).showSnackBar(SnackBar(content: Text(message)));
   }
 
-  void _logOut() {
+  Future<void> _logOut() async {
     FocusManager.instance.primaryFocus?.unfocus();
 
-    Navigator.of(context, rootNavigator: true).pushNamedAndRemoveUntil(
-      TripSplitRoutes.signIn,
-      (Route<dynamic> route) => false,
-    );
+    try {
+      await AppAuthScope.read(context).signOut();
+
+      if (!mounted) {
+        return;
+      }
+
+      Navigator.of(context, rootNavigator: true).pushNamedAndRemoveUntil(
+        TripSplitRoutes.signIn,
+        (Route<dynamic> route) => false,
+      );
+    } on AuthFailure catch (error) {
+      if (!mounted) {
+        return;
+      }
+
+      _showSoonMessage(error.message);
+    }
   }
 
   Future<void> _openEditProfile() async {
@@ -649,6 +665,7 @@ class _ProfileAvatar extends StatelessWidget {
       children: <Widget>[
         TripSplitUserAvatar(
           imageBytes: currentUser.profileImageBytes,
+          imageUrl: currentUser.profileImageUrl,
           size: 96,
           borderColor: colors.orange,
           borderWidth: 2,

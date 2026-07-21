@@ -3,8 +3,10 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
+import 'app_auth_controller.dart';
 import 'app_colors.dart';
 import 'app_routes.dart';
+import 'auth_service.dart';
 import 'auth_ui.dart';
 import 'trip_store.dart';
 import 'user_profile_widgets.dart';
@@ -28,6 +30,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
 
   Uint8List? _profileImageBytes;
   bool _isPickingPhoto = false;
+  bool _isSubmitting = false;
 
   @override
   void initState() {
@@ -148,25 +151,70 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
     );
   }
 
-  void _handleNext() {
-    if (!_canContinue) {
+  String get _displayName {
+    final String trimmedLastName = _trimmedLastName;
+    if (trimmedLastName.isEmpty) {
+      return _trimmedFirstName;
+    }
+
+    return '$_trimmedFirstName $trimmedLastName';
+  }
+
+  void _showMessage(String message) {
+    final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
+    messenger
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  Future<void> _handleNext() async {
+    if (!_canContinue || _isSubmitting) {
       return;
     }
 
     FocusManager.instance.primaryFocus?.unfocus();
 
-    TripStoreScope.read(context).saveCurrentUserAccount(
-      firstName: _trimmedFirstName,
-      lastName: _trimmedLastName.isEmpty ? null : _trimmedLastName,
-      email: _trimmedEmail,
-      password: _password,
-      profileImageBytes: _profileImageBytes,
-    );
+    setState(() {
+      _isSubmitting = true;
+    });
 
-    Navigator.of(context, rootNavigator: true).pushNamedAndRemoveUntil(
-      TripSplitRoutes.dashboard,
-      (Route<dynamic> route) => false,
-    );
+    try {
+      final AppAuthController authController = AppAuthScope.read(context);
+      await authController.createUserWithEmailAndPassword(
+        _trimmedEmail,
+        _password,
+      );
+      await authController.updateDisplayName(_displayName);
+
+      if (!mounted) {
+        return;
+      }
+
+      TripStoreScope.read(context).saveCurrentUserAccount(
+        firstName: _trimmedFirstName,
+        lastName: _trimmedLastName.isEmpty ? null : _trimmedLastName,
+        email: _trimmedEmail,
+        password: _password,
+        profileImageBytes: _profileImageBytes,
+      );
+
+      Navigator.of(context, rootNavigator: true).pushNamedAndRemoveUntil(
+        TripSplitRoutes.dashboard,
+        (Route<dynamic> route) => false,
+      );
+    } on AuthFailure catch (error) {
+      if (!mounted) {
+        return;
+      }
+
+      _showMessage(error.message);
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSubmitting = false;
+        });
+      }
+    }
   }
 
   @override
@@ -249,7 +297,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
           TripSplitPrimaryButton(
             label: 'Next',
             buttonKey: const ValueKey<String>('create_account_next_button'),
-            onPressed: _canContinue ? _handleNext : null,
+            onPressed: _canContinue && !_isSubmitting ? _handleNext : null,
           ),
         ],
       ),

@@ -1,0 +1,24 @@
+{
+  "firestore": {
+    "rules": "firestore.rules"
+  },
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "tripsplit-24398",
+          "appId": "1:218991222761:android:1af1e0afbe230a2813f578",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "tripsplit-24398",
+          "configurations": {
+            "ios": "1:218991222761:ios:d9279a4fee007d9c13f578"
+          }
+        }
+      }
+    }
+  }
+}

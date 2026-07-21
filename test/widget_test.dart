@@ -1,13 +1,162 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:tripsplit/app_theme_controller.dart';
+import 'package:tripsplit/auth_service.dart';
 import 'package:tripsplit/main.dart';
 
-Widget _buildTestApp() {
+Widget _buildTestApp({required AuthService authService}) {
   return TripSplitApp(
     themeController: AppThemeController(AppThemePreference.system),
+    authService: authService,
   );
+}
+
+class _FakeAuthService implements AuthService {
+  _FakeAuthService({AppAuthUser? currentUser}) : _currentUser = currentUser;
+
+  AppAuthUser? _currentUser;
+  int _nextUserId = 1;
+
+  @override
+  bool get isAvailable => true;
+
+  @override
+  bool get supportsGoogleSignIn => true;
+
+  @override
+  AppAuthUser? get currentUser => _currentUser;
+
+  final StreamController<AppAuthUser?> _authStateController =
+      StreamController<AppAuthUser?>.broadcast();
+
+  @override
+  Stream<AppAuthUser?> authStateChanges() => _authStateController.stream;
+
+  @override
+  Future<AppAuthUser> signInWithEmailAndPassword(
+    String email,
+    String password,
+  ) async {
+    if (email.isEmpty || password.isEmpty) {
+      throw const AuthFailure('Enter your email and password to sign in.');
+    }
+
+    final AppAuthUser user = AppAuthUser(
+      uid: 'user_${_nextUserId++}',
+      email: email,
+      displayName: _displayNameFromEmail(email),
+      creationTime: DateTime(2026, 7, 21),
+    );
+    _emitUser(user);
+    return user;
+  }
+
+  @override
+  Future<AppAuthUser> createUserWithEmailAndPassword(
+    String email,
+    String password,
+  ) async {
+    if (email.isEmpty || password.isEmpty) {
+      throw const AuthFailure('Create account requires an email and password.');
+    }
+
+    final AppAuthUser user = AppAuthUser(
+      uid: 'user_${_nextUserId++}',
+      email: email,
+      creationTime: DateTime(2026, 7, 21),
+    );
+    _emitUser(user);
+    return user;
+  }
+
+  @override
+  Future<AppAuthUser> signInWithGoogle() async {
+    final AppAuthUser user = AppAuthUser(
+      uid: 'google_${_nextUserId++}',
+      email: 'google@trip.com',
+      displayName: 'Google Traveler',
+      photoUrl: 'https://example.com/avatar.png',
+      creationTime: DateTime(2026, 7, 21),
+      isEmailVerified: true,
+    );
+    _emitUser(user);
+    return user;
+  }
+
+  @override
+  Future<void> signOut() async {
+    _emitUser(null);
+  }
+
+  @override
+  Future<AppAuthUser> updateDisplayName(String displayName) async {
+    final AppAuthUser currentUser =
+        _currentUser ??
+        (throw const AuthFailure('No authenticated user is available.'));
+    final AppAuthUser updatedUser = AppAuthUser(
+      uid: currentUser.uid,
+      email: currentUser.email,
+      displayName: displayName,
+      photoUrl: currentUser.photoUrl,
+      creationTime: currentUser.creationTime,
+      isEmailVerified: currentUser.isEmailVerified,
+    );
+    _emitUser(updatedUser);
+    return updatedUser;
+  }
+
+  void dispose() {
+    _authStateController.close();
+  }
+
+  void _emitUser(AppAuthUser? user) {
+    _currentUser = user;
+    _authStateController.add(user);
+  }
+
+  String _displayNameFromEmail(String email) {
+    final String localPart = email.split('@').first;
+    if (localPart.isEmpty) {
+      return 'Traveler';
+    }
+
+    final String firstLetter = localPart[0].toUpperCase();
+    final String remainder = localPart.substring(1).toLowerCase();
+    return '$firstLetter$remainder';
+  }
+}
+
+Future<void> _pumpTestApp(
+  WidgetTester tester, {
+  AppAuthUser? currentUser,
+}) async {
+  final _FakeAuthService authService = _FakeAuthService(
+    currentUser: currentUser,
+  );
+  addTearDown(authService.dispose);
+
+  await tester.pumpWidget(_buildTestApp(authService: authService));
+  await tester.pumpAndSettle();
+}
+
+Future<void> _signInFromSplash(
+  WidgetTester tester, {
+  String email = 'demo@trip.com',
+  String password = 'topsecret',
+}) async {
+  await tester.tap(find.text('GET STARTED'));
+  await tester.pumpAndSettle();
+
+  final Finder signInFields = find.byType(TextField);
+  await tester.enterText(signInFields.at(0), email);
+  await tester.enterText(signInFields.at(1), password);
+  await tester.pumpAndSettle();
+
+  await tester.tap(find.byKey(const ValueKey<String>('sign_in_button')));
+  await tester.pumpAndSettle();
 }
 
 void main() {
@@ -21,9 +170,7 @@ void main() {
       tester.view.resetDevicePixelRatio();
     });
 
-    await tester.pumpWidget(_buildTestApp());
-
-    await tester.pumpAndSettle();
+    await _pumpTestApp(tester);
 
     expect(find.text('TRIPSPLIT'), findsOneWidget);
     expect(
@@ -38,7 +185,12 @@ void main() {
     expect(find.text('Welcome'), findsOneWidget);
     expect(find.text('Sign In'), findsOneWidget);
 
-    await tester.tap(find.text('Sign In'));
+    final Finder signInFields = find.byType(TextField);
+    await tester.enterText(signInFields.at(0), 'demo@trip.com');
+    await tester.enterText(signInFields.at(1), 'topsecret');
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const ValueKey<String>('sign_in_button')));
     await tester.pumpAndSettle();
 
     expect(find.text('My Trips'), findsOneWidget);
@@ -149,14 +301,8 @@ void main() {
       tester.view.resetDevicePixelRatio();
     });
 
-    await tester.pumpWidget(_buildTestApp());
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.text('GET STARTED'));
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.text('Sign In'));
-    await tester.pumpAndSettle();
+    await _pumpTestApp(tester);
+    await _signInFromSplash(tester);
 
     await tester.tap(
       find.byKey(const ValueKey<String>('bottom_nav_calculator')),
@@ -201,14 +347,8 @@ void main() {
       tester.view.resetDevicePixelRatio();
     });
 
-    await tester.pumpWidget(_buildTestApp());
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.text('GET STARTED'));
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.text('Sign In'));
-    await tester.pumpAndSettle();
+    await _pumpTestApp(tester);
+    await _signInFromSplash(tester);
 
     await tester.tap(find.byKey(const ValueKey<String>('bottom_nav_profile')));
     await tester.pumpAndSettle();
@@ -239,8 +379,7 @@ void main() {
         tester.view.resetDevicePixelRatio();
       });
 
-      await tester.pumpWidget(_buildTestApp());
-      await tester.pumpAndSettle();
+      await _pumpTestApp(tester);
 
       await tester.tap(find.text('GET STARTED'));
       await tester.pumpAndSettle();
@@ -322,14 +461,8 @@ void main() {
         tester.view.resetDevicePixelRatio();
       });
 
-      await tester.pumpWidget(_buildTestApp());
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.text('GET STARTED'));
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.text('Sign In'));
-      await tester.pumpAndSettle();
+      await _pumpTestApp(tester);
+      await _signInFromSplash(tester);
 
       await tester.tap(find.text('London Weekend'));
       await tester.pumpAndSettle();
@@ -353,4 +486,29 @@ void main() {
       expect(find.text('SETTLE UP NOW'), findsOneWidget);
     },
   );
+
+  testWidgets('authenticated user skips sign in on launch', (
+    WidgetTester tester,
+  ) async {
+    tester.view.devicePixelRatio = 1.0;
+    tester.view.physicalSize = const Size(1080, 1920);
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
+    await _pumpTestApp(
+      tester,
+      currentUser: AppAuthUser(
+        uid: 'existing_user',
+        email: 'avery@trip.com',
+        displayName: 'Avery Stone',
+        creationTime: DateTime(2026, 7, 21),
+      ),
+    );
+
+    expect(find.text('My Trips'), findsOneWidget);
+    expect(find.text('GET STARTED'), findsNothing);
+    expect(find.text('Welcome'), findsNothing);
+  });
 }
